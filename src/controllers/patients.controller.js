@@ -6,4 +6,4 @@ export const {
   create: createPatient,
   update: updatePatient,
   delete: deletePatient
-} = createCrudController('Patients', 'patient_id', ['name', 'dob', 'gender', 'bloodtype', 'address','medicalhistory']);
+} = createCrudController('Patients', 'patient_id', ['name', 'date_of_birth', 'gender', 'blood_type', 'address','phone','medicalhistory']);

@@ -30,31 +30,40 @@ export const createCrudController = (tableName, primaryKey, allowedFields) => {
     },
 
     create: async (req, res) => {
-      try {
-        const fields = [];
-        const values = [];
-        allowedFields.forEach(f => {
-          if (req.body[f] !== undefined) {
-            fields.push(f);
-            values.push(req.body[f]);
-          }
-        });
+  try {
+    // Collect all allowed fields, even if the value is null
+    const fields = [];
+    const values = [];
 
-        if (!fields.length) return res.status(400).json({ error: 'No valid fields provided' });
-
-        const placeholders = fields.map(() => '?').join(', ');
-        const [result] = await db.query(
-          `INSERT INTO ${tableName} (${fields.join(', ')}, created_at) VALUES (${placeholders}, NOW())`,
-          values
-        );
-
-        const [newRow] = await db.query(`SELECT * FROM ${tableName} WHERE ${primaryKey} = ?`, [result.insertId]);
-        res.status(201).json(newRow[0]);
-      } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: `Database error creating ${tableName.slice(0, -1)}` });
+    allowedFields.forEach(f => {
+      if (req.body.hasOwnProperty(f)) { // include fields even if null
+        fields.push(f);
+        values.push(req.body[f]);
       }
-    },
+    });
+
+    if (!fields.length) 
+      return res.status(400).json({ error: 'No valid fields provided' });
+
+    // Build placeholders and SQL
+    const placeholders = fields.map(() => '?').join(', ');
+    const sql = `INSERT INTO ${tableName} (${fields.join(', ')}) VALUES (${placeholders})`;
+
+    const [result] = await db.query(sql, values);
+
+    // Fetch the newly created patient
+    const [newRow] = await db.query(
+      `SELECT * FROM ${tableName} WHERE ${primaryKey} = ?`,
+      [result.insertId]
+    );
+
+    res.status(201).json(newRow[0]);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: `Database error creating ${tableName.slice(0, -1)}` });
+  }
+},
 
     update: async (req, res) => {
       try {
