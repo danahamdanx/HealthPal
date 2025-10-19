@@ -1,22 +1,15 @@
-import express from 'express';
-import * as ctrl from '../controllers/ngo.controller.js';
+import express from "express";
+import * as ctrl from "../controllers/ngo.controller.js";
+import { authenticate } from "../middleware/authenticate.js"; // 🔒 import middleware
 
 const router = express.Router();
 
-// ✅ GET all Ngos
-router.get('/', ctrl.getAllNgos);
+// 🔒 Protect all NGO routes
+router.get("/", ctrl.getAllNgos);
+router.get("/:id", ctrl.getNgoById);
 
-// ✅ GET single Ngo
-router.get('/:id', ctrl.getNgoById);
+router.post("/", authenticate, ctrl.createNgo);
+router.put("/:id", authenticate, ctrl.updateNgo);
+router.delete("/:id", authenticate, ctrl.deleteNgo);
 
-// ✅ POST new Ngo
-router.post('/', ctrl.createNgo);
-
-// ✅ PUT update Ngo
-router.put('/:id', ctrl.updateNgo);
-
-// ✅ DELETE Ngo
-router.delete('/:id', ctrl.deleteNgo);
-
-// ✅ Export router
 export default router;

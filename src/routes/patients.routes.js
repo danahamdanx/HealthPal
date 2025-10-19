@@ -1,5 +1,7 @@
 import express from 'express';
 import * as ctrl from '../controllers/patients.controller.js';
+import { authenticate } from "../middleware/authenticate.js"; // 🔒 import middleware
+
 
 const router = express.Router();
 
@@ -10,13 +12,13 @@ router.get('/', ctrl.getAllPatients);
 router.get('/:id', ctrl.getPatientById);
 
 // ✅ POST new patient
-router.post('/', ctrl.createPatient);
+router.post('/',authenticate, ctrl.createPatient);
 
 // ✅ PUT update patient
-router.put('/:id', ctrl.updatePatient);
+router.put('/:id',authenticate, ctrl.updatePatient);
 
 // ✅ DELETE patient
-router.delete('/:id', ctrl.deletePatient);
+router.delete('/:id',authenticate, ctrl.deletePatient);
 
 // ✅ Export router
 export default router;
