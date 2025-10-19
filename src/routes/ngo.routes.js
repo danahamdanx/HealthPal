@@ -1,22 +1,23 @@
 import express from 'express';
 import * as ctrl from '../controllers/ngo.controller.js';
+import { authenticate } from '../middleware/authenticate.js';
+import { authorizeRoles } from '../middleware/authorize.middleware.js';
 
 const router = express.Router();
 
-// ✅ GET all Ngos
-router.get('/', ctrl.getAllNgos);
+// ✅ GET all NGOs (authenticated)
+router.get('/', authenticate, ctrl.getAllNgos);
 
-// ✅ GET single Ngo
-router.get('/:id', ctrl.getNgoById);
+// ✅ GET single NGO (authenticated)
+router.get('/:id', authenticate, ctrl.getNgoById);
 
-// ✅ POST new Ngo
-router.post('/', ctrl.createNgo);
+// ✅ POST new NGO (admin only)
+router.post('/', authenticate, authorizeRoles('admin'), ctrl.createNgo);
 
-// ✅ PUT update Ngo
-router.put('/:id', ctrl.updateNgo);
+// ✅ PUT update NGO (admin only)
+router.put('/:id', authenticate, authorizeRoles('admin'), ctrl.updateNgo);
 
-// ✅ DELETE Ngo
-router.delete('/:id', ctrl.deleteNgo);
+// ✅ DELETE NGO (admin only)
+router.delete('/:id', authenticate, authorizeRoles('admin'), ctrl.deleteNgo);
 
-// ✅ Export router
 export default router;

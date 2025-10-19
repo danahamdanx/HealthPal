@@ -1,22 +1,23 @@
 import express from 'express';
 import * as ctrl from '../controllers/doctors.controller.js';
+import { authenticate } from '../middleware/authenticate.js';
+import { authorizeRoles } from '../middleware/authorize.middleware.js';
 
 const router = express.Router();
 
-// ✅ GET all Doctor
-router.get('/', ctrl.getAllDoctors);
+// ✅ GET all doctors (authenticated)
+router.get('/', authenticate, ctrl.getAllDoctors);
 
-// ✅ GET single Doctor
-router.get('/:id', ctrl.getDoctorById);
+// ✅ GET single doctor (authenticated)
+router.get('/:id', authenticate, ctrl.getDoctorById);
 
-// ✅ POST new Doctor
-router.post('/', ctrl.createDoctor);
+// ✅ POST new doctor (admin only)
+router.post('/', authenticate, authorizeRoles('admin'), ctrl.createDoctor);
 
-// ✅ PUT update Doctor
-router.put('/:id', ctrl.updateDoctor);
+// ✅ PUT update doctor (admin only)
+router.put('/:id', authenticate, authorizeRoles('admin'), ctrl.updateDoctor);
 
-// ✅ DELETE Doctor
-router.delete('/:id', ctrl.deleteDoctor);
+// ✅ DELETE doctor (admin only)
+router.delete('/:id', authenticate, authorizeRoles('admin'), ctrl.deleteDoctor);
 
-// ✅ Export router
 export default router;
