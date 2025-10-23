@@ -7,6 +7,8 @@ import patientRoutes from './src/routes/patients.routes.js';
 import doctorRoutes from './src/routes/doctors.routes.js';
 import ngoRoutes from './src/routes/ngo.routes.js';
 import authRoutes from './src/routes/auth.routes.js';
+import consultationsRoutes from "./src/routes/consultations.routes.js";
+
 
 
 
@@ -24,6 +26,8 @@ app.use('/api/patients', patientRoutes);
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/ngos', ngoRoutes);
 app.use('/api/auth', authRoutes);
+app.use("/api/consultations", consultationsRoutes);
+
 
 
 
