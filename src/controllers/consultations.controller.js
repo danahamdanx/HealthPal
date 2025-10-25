@@ -1,25 +1,24 @@
 import { db } from '../config/db.js';
 
-/**
- * CRUD controller for Consultations with role-based access.
- */
-
 // ✅ Get all consultations
 export const getAllConsultations = async (req, res) => {
   try {
     let query = 'SELECT * FROM Consultations';
     const params = [];
 
-    if (req.user.role === 'patient') {
-      query += ' WHERE patient_id = ?';
-      params.push(req.user.user_id);
-    } else if (req.user.role === 'doctor') {
+    // 🔹 Dynamically filter based on role
+    if (req.user.role === 'doctor' && req.user.doctor_id) {
       query += ' WHERE doctor_id = ?';
-      params.push(req.user.user_id);
+      params.push(req.user.doctor_id);
+    } else if (req.user.role === 'patient' && req.user.patient_id) {
+      query += ' WHERE patient_id = ?';
+      params.push(req.user.patient_id);
     }
-    query += ' ORDER BY consultation_id DESC';
+    // Admins, NGOs, etc. see everything by default
 
+    query += ' ORDER BY consultation_id DESC';
     const [rows] = await db.query(query, params);
+
     res.json(rows);
   } catch (err) {
     console.error(err);
@@ -27,21 +26,24 @@ export const getAllConsultations = async (req, res) => {
   }
 };
 
-// ✅ Get single consultation by ID
 export const getConsultationById = async (req, res) => {
   try {
-    const [rows] = await db.query('SELECT * FROM Consultations WHERE consultation_id = ?', [req.params.id]);
-    if (rows.length === 0) return res.status(404).json({ error: 'Consultation not found' });
+    const [rows] = await db.query(
+      'SELECT * FROM Consultations WHERE consultation_id = ?',
+      [req.params.id]
+    );
+
+    if (rows.length === 0)
+      return res.status(404).json({ error: 'Consultation not found' });
 
     const consultation = rows[0];
 
-    // Role-based access
-    if (req.user.role === 'patient' && consultation.patient_id !== req.user.user_id) {
-      return res.status(403).json({ error: 'Access denied' });
-    }
-    if (req.user.role === 'doctor' && consultation.doctor_id !== req.user.user_id) {
-      return res.status(403).json({ error: 'Access denied' });
-    }
+    // 🔹 Restrict access dynamically
+    if (req.user.role === 'doctor' && req.user.doctor_id !== consultation.doctor_id)
+      return res.status(403).json({ error: 'Not authorized to view this consultation' });
+
+    if (req.user.role === 'patient' && req.user.patient_id !== consultation.patient_id)
+      return res.status(403).json({ error: 'Not authorized to view this consultation' });
 
     res.json(consultation);
   } catch (err) {
@@ -54,25 +56,17 @@ export const getConsultationById = async (req, res) => {
 export const createConsultation = async (req, res) => {
   try {
     const {
-      patient_id,
-      doctor_id,
-      scheduled_time,
-      status,
-      consultation_type,
-      translation_needed,
-      notes,
-      diagnosis,
-      treatment
+      patient_id, doctor_id, scheduled_time,
+      status, consultation_type, translation_needed,
+      notes, diagnosis, treatment
     } = req.body;
 
-    // Minimal validation
-    if (!patient_id || !doctor_id || !scheduled_time || !status || !consultation_type) {
+    if (!patient_id || !doctor_id || !scheduled_time || !status || !consultation_type)
       return res.status(400).json({ error: 'Required fields missing' });
-    }
 
     const [result] = await db.query(
       `INSERT INTO Consultations 
-      (patient_id, doctor_id, scheduled_time, status, consultation_type, translation_needed, notes, diagnosis, treatment) 
+      (patient_id, doctor_id, scheduled_time, status, consultation_type, translation_needed, notes, diagnosis, treatment)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [patient_id, doctor_id, scheduled_time, status, consultation_type, translation_needed, notes, diagnosis, treatment]
     );
@@ -95,7 +89,6 @@ export const updateConsultation = async (req, res) => {
 
     const updates = [];
     const values = [];
-
     allowedFields.forEach(f => {
       if (req.body[f] !== undefined) {
         updates.push(`${f} = ?`);
@@ -107,8 +100,7 @@ export const updateConsultation = async (req, res) => {
 
     values.push(req.params.id);
     const [result] = await db.query(`UPDATE Consultations SET ${updates.join(', ')} WHERE consultation_id = ?`, values);
-
-    if (result.affectedRows === 0) return res.status(404).json({ error: 'Consultation not found' });
+    if (!result.affectedRows) return res.status(404).json({ error: 'Consultation not found' });
 
     const [updated] = await db.query('SELECT * FROM Consultations WHERE consultation_id = ?', [req.params.id]);
     res.json(updated[0]);
@@ -122,7 +114,7 @@ export const updateConsultation = async (req, res) => {
 export const deleteConsultation = async (req, res) => {
   try {
     const [result] = await db.query('DELETE FROM Consultations WHERE consultation_id = ?', [req.params.id]);
-    if (result.affectedRows === 0) return res.status(404).json({ error: 'Consultation not found' });
+    if (!result.affectedRows) return res.status(404).json({ error: 'Consultation not found' });
     res.json({ message: 'Consultation deleted successfully' });
   } catch (err) {
     console.error(err);
