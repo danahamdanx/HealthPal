@@ -7,13 +7,13 @@ import { authorizeRoles } from '../middleware/authorize.middleware.js';
 const router = express.Router();
 
 // ✅ Get all consultations (admin or doctor)
-router.get('/', authenticate, authorizeRoles('admin', 'doctor'), ctrl.getAllConsultations);
+router.get('/', authenticate, ctrl.getAllConsultations);
 
 // ✅ Get one consultation
 router.get('/:id', authenticate, ctrl.getConsultationById);
 
 // ✅ Create a consultation (doctor or admin)
-router.post('/', authenticate, authorizeRoles('doctor', 'admin'), ctrl.createConsultation);
+router.post('/', authenticate, authorizeRoles('doctor', 'admin',), ctrl.createConsultation);
 
 // ✅ Update consultation (doctor or admin)
 router.put('/:id', authenticate, authorizeRoles('doctor', 'admin'), ctrl.updateConsultation);
