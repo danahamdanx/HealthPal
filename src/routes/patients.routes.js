@@ -15,7 +15,7 @@ router.get('/:id', authenticate, ctrl.getPatientById);
 router.post('/', authenticate, authorizeRoles('admin'), ctrl.createPatient);
 
 // ✅ PUT update patient (admin only)
-router.put('/:id', authenticate, authorizeRoles('admin'), ctrl.updatePatient);
+router.put('/:id', authenticate, authorizeRoles('admin','patient'), ctrl.updatePatient);
 
 // ✅ DELETE patient (admin only)
 router.delete('/:id', authenticate, authorizeRoles('admin'), ctrl.deletePatient);
