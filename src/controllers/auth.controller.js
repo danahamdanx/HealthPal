@@ -17,7 +17,7 @@ export const signup = async (req, res) => {
    if (!emailRegex.test(email)) {
   return res.status(400).json({ error: 'Invalid email format. Please use a valid email address.' });
    }
-
+p
 
     const [existing] = await db.query('SELECT * FROM Users WHERE email = ?', [email]);
     if (existing.length > 0) return res.status(400).json({ error: 'Email already registered' });
