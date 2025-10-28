@@ -6,4 +6,4 @@ export const {
   create: createNgo,
   update: updateNgo,
   delete: deleteNgo
-} = createCrudController('Ngos', 'ngo_id', ['organization_name', 'registration_number', 'address', 'verified']);
+} = createCrudController('Ngos', 'ngo_id', ['name', 'registration_number', 'address', 'verified','phone','email','mission']);

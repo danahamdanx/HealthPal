@@ -8,8 +8,8 @@ import doctorRoutes from './src/routes/doctors.routes.js';
 import ngoRoutes from './src/routes/ngo.routes.js';
 import authRoutes from './src/routes/auth.routes.js';
 import consultationsRoutes from "./src/routes/consultations.routes.js";
-import casesRoutes from "./src/routes/cases.routes.js";
-import sponsorshipsRoutes from "./src/routes/sponsorships.routes.js";
+import casesRoutes from './src/routes/cases.routes.js';
+import sponsorshipsRoutes from './src/routes/sponsorships.routes.js'
 
 
 
@@ -32,7 +32,7 @@ app.use('/api/ngos', ngoRoutes);
 app.use('/api/auth', authRoutes);
 app.use("/api/consultations", consultationsRoutes);
 app.use("/api/cases",casesRoutes);
-app.use("api/sponsorships",sponsorshipsRoutes);
+app.use("/api/sponsorships",sponsorshipsRoutes);
 
 
 
