@@ -126,21 +126,29 @@ export const createCrudController = (tableName, primaryKey, allowedFields) => {
       }
     },
 
-    delete: async (req, res) => {
-      try {
-        const [result] = await db.query(
-          `DELETE FROM ${tableName} WHERE ${primaryKey} = ?`,
-          [req.params.id]
-        );
+ delete: async (req, res) => {
+  try {
+    // First, fetch the row to get the linked user_id
+    const [rows] = await db.query(`SELECT user_id FROM ${tableName} WHERE ${primaryKey} = ?`, [req.params.id]);
+    if (rows.length === 0) 
+      return res.status(404).json({ error: `${tableName.slice(0, -1)} not found` });
 
-        if (result.affectedRows === 0)
-          return res.status(404).json({ error: `${tableName.slice(0, -1)} not found` });
+    const userId = rows[0].user_id;
 
-        res.json({ message: `${tableName.slice(0, -1)} deleted successfully` });
-      } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: `Database error deleting ${tableName.slice(0, -1)}` });
-      }
-    },
+    // Delete the role row
+    await db.query(`DELETE FROM ${tableName} WHERE ${primaryKey} = ?`, [req.params.id]);
+
+    // Optionally, delete the user
+    if (userId) {
+      await db.query(`DELETE FROM Users WHERE user_id = ?`, [userId]);
+    }
+
+    res.json({ message: `${tableName.slice(0, -1)} and linked user deleted successfully` });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: `Database error deleting ${tableName.slice(0, -1)}` });
+  }
+},
+
   };
 };
