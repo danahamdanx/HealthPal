@@ -13,7 +13,7 @@ router.get('/', authenticate, ctrl.getAllConsultations);
 router.get('/:id', authenticate, ctrl.getConsultationById);
 
 // ✅ Create a consultation (doctor or admin)
-router.post('/', authenticate, authorizeRoles('doctor', 'admin',), ctrl.createConsultation);
+router.post('/', authenticate, authorizeRoles('doctor', 'admin','patient'), ctrl.createConsultation);
 
 // ✅ Update consultation (doctor or admin)
 router.put('/:id', authenticate, authorizeRoles('doctor', 'admin'), ctrl.updateConsultation);

@@ -1,3 +1,4 @@
+// src/controllers/auth.controller.js
 import { db } from '../config/db.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -12,40 +13,77 @@ export const signup = async (req, res) => {
     if (!name || !email || !password || !role) {
       return res.status(400).json({ error: 'name, email, password, and role are required' });
     }
-    // Email format validation
-   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-   if (!emailRegex.test(email)) {
-  return res.status(400).json({ error: 'Invalid email format. Please use a valid email address.' });
-   }
-p
 
+    // ✅ Email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format. Please use a valid email address.' });
+    }
+
+    // ✅ Check if email already exists
     const [existing] = await db.query('SELECT * FROM Users WHERE email = ?', [email]);
-    if (existing.length > 0) return res.status(400).json({ error: 'Email already registered' });
+    if (existing.length > 0)
+      return res.status(400).json({ error: 'Email already registered' });
 
+    // ✅ Hash password
     const password_hash = await bcrypt.hash(password, 10);
 
+    // ✅ Insert into Users table
     const [result] = await db.query(
       `INSERT INTO Users (name, email, password_hash, phone, role, created_at)
        VALUES (?, ?, ?, ?, ?, NOW())`,
       [name, email, password_hash, phone, role]
     );
 
-    const [newUser] = await db.query('SELECT * FROM Users WHERE user_id = ?', [result.insertId]);
+    const userId = result.insertId;
+    const [newUser] = await db.query('SELECT * FROM Users WHERE user_id = ?', [userId]);
 
-    // Dynamically check if a table exists for the role
-    let payload = { user_id: newUser[0].user_id, role: newUser[0].role };
-    try {
-      const [roleRows] = await db.query(`SELECT * FROM ${role}s WHERE email = ?`, [email]);
-      if (roleRows.length) {
-        const idCol = Object.keys(roleRows[0]).find(k => k.endsWith('_id'));
-        if (idCol) payload[idCol] = roleRows[0][idCol];
-      }
-    } catch (_) {
-      // No role table found; ignore
-    }
+    // ✅ Automatically create corresponding role record
+    const roleMap = {
+      patient: 'Patients',
+      doctor: 'Doctors',
+      ngo: 'NGOs',
+      donor: 'Donors'
+    };
 
-    const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
-    res.status(201).json({ message: 'Signup successful', user: newUser[0], token });
+   if (roleMap[role]) {
+  const tableName = roleMap[role];
+  const idField = `${role}_id`;
+
+  await db.query(
+    `INSERT INTO ${tableName} (user_id, name, email, phone) VALUES (?, ?, ?, ?)`,
+    [userId, name, email, phone]
+  );
+
+  const [roleRecord] = await db.query(
+    `SELECT ${idField} FROM ${tableName} WHERE user_id = ? LIMIT 1`,
+    [userId]
+  );
+
+  const payload = {
+    user_id: userId,
+    role: role,
+    [idField]: roleRecord?.[0]?.[idField] || null
+  };
+
+  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: '7d' });
+
+  return res.status(201).json({
+    message: `Signup successful as ${role}`,
+    user: newUser[0],
+    token
+  });
+}
+
+
+    // If role not mapped (like admin), still issue token
+    const token = jwt.sign({ user_id: userId, role }, JWT_SECRET, { expiresIn: '7d' });
+
+    res.status(201).json({
+      message: `Signup successful as ${role}`,
+      user: newUser[0],
+      token
+    });
 
   } catch (err) {
     console.error(err);
