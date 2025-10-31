@@ -17,6 +17,8 @@ router.post('/', authenticate, authorizeRoles('admin','patient'), ctrl.createCon
 
 // ✅ Update consultation (doctor or admin)
 router.put('/:id', authenticate, authorizeRoles('doctor', 'admin','patient'), ctrl.updateConsultation);
+router.patch('/:id/status', authenticate, authorizeRoles('doctor', 'admin'), ctrl.updateConsultationStatus);
+
 
 // ✅ Delete consultation (admin only)
 router.delete('/:id', authenticate, authorizeRoles('admin'), ctrl.deleteConsultation);

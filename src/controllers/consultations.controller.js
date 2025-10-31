@@ -150,6 +150,36 @@ export const updateConsultation = async (req, res) => {
     res.status(500).json({ error: 'Database error updating consultation' });
   }
 };
+/**
+ * Update only the status of a consultation
+ */
+export const updateConsultationStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    const { id } = req.params;
+
+    if (!status) return res.status(400).json({ error: 'Status is required' });
+
+    // Allowed status values for a consultation
+    const allowedStatus = ['pending', 'scheduled', 'canceled', 'completed'];
+    if (!allowedStatus.includes(status))
+      return res.status(400).json({ error: `Invalid status. Allowed: ${allowedStatus.join(', ')}` });
+
+    const [result] = await db.query(
+      'UPDATE Consultations SET status = ? WHERE consultation_id = ?',
+      [status, id]
+    );
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: 'Consultation not found' });
+
+    const [updated] = await db.query('SELECT * FROM Consultations WHERE consultation_id = ?', [id]);
+    res.json(updated[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error updating consultation status' });
+  }
+};
 
 
 // ✅ Delete a consultation
