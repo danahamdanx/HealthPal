@@ -13,10 +13,12 @@ router.get('/', authenticate, ctrl.getAllConsultations);
 router.get('/:id', authenticate, ctrl.getConsultationById);
 
 // ✅ Create a consultation (doctor or admin)
-router.post('/', authenticate, authorizeRoles('doctor', 'admin',), ctrl.createConsultation);
+router.post('/', authenticate, authorizeRoles('admin','patient'), ctrl.createConsultation);
 
 // ✅ Update consultation (doctor or admin)
-router.put('/:id', authenticate, authorizeRoles('doctor', 'admin'), ctrl.updateConsultation);
+router.put('/:id', authenticate, authorizeRoles('doctor', 'admin','patient'), ctrl.updateConsultation);
+router.patch('/:id/status', authenticate, authorizeRoles('doctor', 'admin'), ctrl.updateConsultationStatus);
+
 
 // ✅ Delete consultation (admin only)
 router.delete('/:id', authenticate, authorizeRoles('admin'), ctrl.deleteConsultation);

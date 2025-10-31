@@ -15,7 +15,7 @@ router.get('/:id', authenticate, ctrl.getNgoById);
 router.post('/', authenticate, authorizeRoles('admin'), ctrl.createNgo);
 
 // ✅ PUT update NGO (admin only)
-router.put('/:id', authenticate, authorizeRoles('admin'), ctrl.updateNgo);
+router.put('/:id', authenticate, authorizeRoles('admin','ngo'), ctrl.updateNgo);
 
 // ✅ DELETE NGO (admin only)
 router.delete('/:id', authenticate, authorizeRoles('admin'), ctrl.deleteNgo);
