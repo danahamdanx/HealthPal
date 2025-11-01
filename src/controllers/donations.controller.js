@@ -15,9 +15,11 @@ export const createDonation = async (req, res) => {
     const [caseRows] = await db.query('SELECT target_amount, raised_amount, verified, status FROM Cases WHERE case_id = ?', [case_id]);
     if (!caseRows.length) return res.status(404).json({ error: 'Case not found' });
 
-    const caseData = caseRows[0];
-    if (!caseData.verified || caseData.status !== 'active')
-      return res.status(400).json({ error: 'Case not verified or not active yet' });
+   const caseData = caseRows[0];
+if (!caseData.verified || caseData.status === 'pending_verification') {
+  return res.status(400).json({ error: 'Case not verified yet' });
+}
+
 
     // ✅ Insert donation
     await db.query(
@@ -33,7 +35,12 @@ export const createDonation = async (req, res) => {
       `UPDATE Cases SET raised_amount = ?, status = ? WHERE case_id = ?`,
       [newRaised, newStatus, case_id]
     );
-
+    
+  // Update donor's total donated
+    await db.query(
+      `UPDATE Donors SET total_donated = total_donated + ? WHERE donor_id = ?`,
+      [donationAmount, donor_id]
+    );
     res.status(201).json({
       message: 'Donation successful',
       updated_case: {
