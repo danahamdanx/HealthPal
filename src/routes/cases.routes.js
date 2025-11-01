@@ -1,15 +1,17 @@
-// src/routes/cases.routes.js
 import express from 'express';
-import { casesController } from '../controllers/cases.controller.js';
 import { authenticate } from '../middleware/authenticate.js';
 import { authorizeRoles } from '../middleware/authorize.middleware.js';
+import { createCase, getAllCases, verifyCase } from '../controllers/cases.controller.js';
 
 const router = express.Router();
 
-router.get('/', authenticate, casesController.getAll);
-router.get('/:id', authenticate, casesController.getById);
-router.post('/', authenticate, authorizeRoles('admin', 'ngo'), casesController.create);
-router.put('/:id', authenticate, authorizeRoles('admin', 'ngo'), casesController.update);
-router.delete('/:id', authenticate, authorizeRoles('admin'), casesController.delete);
+// Get all cases
+router.get('/', authenticate, getAllCases);
+
+// Create a new case (Patient or Admin)
+router.post('/', authenticate, authorizeRoles('patient', 'admin'), createCase);
+
+// Verify a case (NGO assigned or Admin)
+router.put('/:case_id/verify', authenticate, authorizeRoles('ngo', 'admin'), verifyCase);
 
 export default router;
