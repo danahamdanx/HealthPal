@@ -12,6 +12,8 @@ import casesRoutes from './src/routes/cases.routes.js';
 import sponsorshipsRoutes from './src/routes/sponsorships.routes.js'
 import donorRoutes from './src/routes/donors.routes.js'
 import donationRoutes from './src/routes/donation.routes.js'
+import medicalrequest from './src/routes/medicalRequests.routes.js'
+
 
 
 
@@ -38,6 +40,7 @@ app.use("/api/cases",casesRoutes);
 app.use("/api/sponsorships",sponsorshipsRoutes);
 app.use("/api/donors",donorRoutes);
 app.use("/api/donations",donationRoutes);
+app.use("/api/medical-requests",medicalrequest);
 
 
 
