@@ -52,9 +52,8 @@ export const getAllMedicalRequests = async (req, res) => {
       sql += ' WHERE patient_id = ?';
       params.push(patient_id);
     } else if (req.user?.role === 'ngo') {
-      // NGOs see all requests (could restrict to assigned NGO later)
+      // NGOs see all requests 
       // optional: show pending and claimed so NGOs can pick
-      // keep full list for now
     } else if (req.user?.role === 'donor') {
       // donors see only verified requests? This is outside scope; we'll show all non-canceled
       sql += (params.length ? ' AND ' : ' WHERE ') + "status != 'canceled'";
@@ -163,9 +162,12 @@ export const updateMedicalRequestStatus = async (req, res) => {
     if (!validStatuses.includes(status))
       return res.status(400).json({ error: "Invalid status" });
 
-    // Pull request info
+    // Pull request + claim info
     const [rows] = await db.query(
-      `SELECT patient_id, status FROM MedicalRequests WHERE request_id = ?`,
+      `SELECT MR.patient_id, MR.status, RC.ngo_id, RC.donor_id
+       FROM MedicalRequests MR
+       LEFT JOIN RequestClaims RC ON MR.request_id = RC.request_id
+       WHERE MR.request_id = ?`,
       [requestId]
     );
 
@@ -174,57 +176,37 @@ export const updateMedicalRequestStatus = async (req, res) => {
 
     const request = rows[0];
 
-    // ✅ Only the patient can confirm delivered
+    /** 🚫 PATIENT IS NOT ALLOWED TO MARK DELIVERED **/
     if (status === "delivered") {
-      if (req.user.role !== "patient" && req.user.role !== "admin") {
-        return res.status(403).json({ error: "Only the patient can confirm delivery" });
-      }
+      const isClaimedNGO = req.user.role === "ngo" && req.user.ngo_id === request.ngo_id;
+      const isClaimedDonor = req.user.role === "donor" && req.user.donor_id === request.donor_id;
+      const isAdmin = req.user.role === "admin";
 
-      if (req.user.role === "patient" && req.user.patient_id !== request.patient_id) {
-        return res.status(403).json({ error: "You are not the owner of this request" });
+      if (!isClaimedNGO && !isClaimedDonor && !isAdmin) {
+        return res.status(403).json({
+          error: "Only the claimant (NGO/Donor) or Admin can mark as delivered"
+        });
       }
     }
 
-    // ✅ NGO / Donor are allowed to move from:
-    // pending → claimed
-    // claimed → in_transit
+    /** ✅ NGO / Donor can update status to claimed / in_transit */
     if (["claimed", "in_transit"].includes(status)) {
       if (!["ngo", "donor", "admin"].includes(req.user.role)) {
         return res.status(403).json({ error: "Only NGOs or donors can update request progress" });
       }
     }
 
-    // ✅ Update MedicalRequests table
+    // ✅ Update MedicalRequests
     await db.query(
       `UPDATE MedicalRequests SET status = ? WHERE request_id = ?`,
       [status, requestId]
     );
 
-    /** ✅ Sync RequestClaims table */
-    if (status === "claimed") {
-      await db.query(
-        `UPDATE RequestClaims SET status = 'claimed'
-         WHERE request_id = ?`,
-        [requestId]
-      );
-    }
-
-    if (status === "in_transit") {
-      await db.query(
-        `UPDATE RequestClaims SET status = 'in_transit'
-         WHERE request_id = ?`,
-        [requestId]
-      );
-    }
-
-    if (status === "delivered") {
-      await db.query(
-        `UPDATE RequestClaims 
-         SET status = 'delivered'
-         WHERE request_id = ?`,
-        [requestId]
-      );
-    }
+    // ✅ Sync status in RequestClaims
+    await db.query(
+      `UPDATE RequestClaims SET status = ? WHERE request_id = ?`,
+      [status, requestId]
+    );
 
     res.json({
       request_id: requestId,
