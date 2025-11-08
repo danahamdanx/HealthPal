@@ -155,45 +155,57 @@ export const claimMedicalRequest = async (req, res) => {
 /** Update status of a request (only claimant or admin) */
 export const updateMedicalRequestStatus = async (req, res) => {
   try {
-    const requestId = parseInt(req.params.id, 10);
+    const { id: requestId } = req.params;
     const { status } = req.body;
-    if (!requestId) return res.status(400).json({ error: 'Invalid request id' });
-    if (!status || !ALLOWED_STATUSES.includes(status)) return res.status(400).json({ error: `Invalid status. Allowed: ${ALLOWED_STATUSES.join(',')}` });
 
-    // fetch request
-    const [reqRows] = await db.query('SELECT * FROM MedicalRequests WHERE request_id = ?', [requestId]);
-    if (!reqRows.length) return res.status(404).json({ error: 'Request not found' });
+    const validStatuses = ["pending", "claimed", "in_transit", "delivered"];
+    if (!validStatuses.includes(status))
+      return res.status(400).json({ error: "Invalid status" });
 
-    // fetch claim if any
-    const [claimRows] = await db.query('SELECT * FROM RequestClaims WHERE request_id = ? ORDER BY claimed_at DESC LIMIT 1', [requestId]);
-    const claim = claimRows[0] || null;
+    // Pull request info
+    const [rows] = await db.query(
+      `SELECT patient_id, status FROM MedicalRequests WHERE request_id = ?`,
+      [requestId]
+    );
 
-    // Authorization: admin OR the claimant (ngo_id/donor_id matching req.user)
-    const isAdmin = req.user?.role === 'admin';
-    let isClaimant = false;
-    if (claim) {
-      if (claim.ngo_id && req.user?.role === 'ngo' && req.user.ngo_id === claim.ngo_id) isClaimant = true;
-      if (claim.donor_id && req.user?.role === 'donor' && req.user.donor_id === claim.donor_id) isClaimant = true;
-      // admin handled above
+    if (!rows.length)
+      return res.status(404).json({ error: "Medical request not found" });
+
+    const request = rows[0];
+
+    // ✅ Only the patient can finalize as delivered
+    if (status === "delivered") {
+      if (req.user.role !== "patient" && req.user.role !== "admin") {
+        return res.status(403).json({ error: "Only the patient can confirm delivery" });
+      }
+
+      if (req.user.role === "patient" && req.user.patient_id !== request.patient_id) {
+        return res.status(403).json({ error: "You are not the owner of this request" });
+      }
     }
 
-    if (!isAdmin && !isClaimant) {
-      return res.status(403).json({ error: 'Not authorized to update status' });
+    // ✅ NGO / Donor allowed to move only these:
+    // pending → claimed
+    // claimed → in_transit
+    if (["claimed", "in_transit"].includes(status)) {
+      if (!["ngo", "donor", "admin"].includes(req.user.role)) {
+        return res.status(403).json({ error: "Only NGOs or donors can update request progress" });
+      }
     }
 
-    // update RequestClaims.status (if exists) and MedicalRequests.status
-    if (claim) {
-      await db.query('UPDATE RequestClaims SET status = ? WHERE claim_id = ?', [status, claim.claim_id]);
-    }
-    await db.query('UPDATE MedicalRequests SET status = ? WHERE request_id = ?', [status, requestId]);
+    // Update DB
+    await db.query(
+      `UPDATE MedicalRequests SET status = ? WHERE request_id = ?`,
+      [status, requestId]
+    );
 
-    const [updatedReq] = await db.query('SELECT * FROM MedicalRequests WHERE request_id = ?', [requestId]);
-    res.json(updatedReq[0]);
+    res.json({ request_id: requestId, status });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Database error updating status' });
+    res.status(500).json({ error: "Server error updating medical request status" });
   }
 };
+
 
 /** Optional: cancel claim (claimant or admin) */
 export const cancelClaim = async (req, res) => {
