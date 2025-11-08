@@ -153,9 +153,10 @@ export const claimMedicalRequest = async (req, res) => {
 };
 
 /** Update status of a request (only claimant or admin) */
+/** Update status of a request (only claimant or admin) */
 export const updateMedicalRequestStatus = async (req, res) => {
   try {
-    const { id: requestId } = req.params;
+    const requestId = req.params.id;
     const { status } = req.body;
 
     const validStatuses = ["pending", "claimed", "in_transit", "delivered"];
@@ -173,7 +174,7 @@ export const updateMedicalRequestStatus = async (req, res) => {
 
     const request = rows[0];
 
-    // ✅ Only the patient can finalize as delivered
+    // ✅ Only the patient can confirm delivered
     if (status === "delivered") {
       if (req.user.role !== "patient" && req.user.role !== "admin") {
         return res.status(403).json({ error: "Only the patient can confirm delivery" });
@@ -184,7 +185,7 @@ export const updateMedicalRequestStatus = async (req, res) => {
       }
     }
 
-    // ✅ NGO / Donor allowed to move only these:
+    // ✅ NGO / Donor are allowed to move from:
     // pending → claimed
     // claimed → in_transit
     if (["claimed", "in_transit"].includes(status)) {
@@ -193,16 +194,47 @@ export const updateMedicalRequestStatus = async (req, res) => {
       }
     }
 
-    // Update DB
+    // ✅ Update MedicalRequests table
     await db.query(
       `UPDATE MedicalRequests SET status = ? WHERE request_id = ?`,
       [status, requestId]
     );
 
-    res.json({ request_id: requestId, status });
+    /** ✅ Sync RequestClaims table */
+    if (status === "claimed") {
+      await db.query(
+        `UPDATE RequestClaims SET status = 'claimed'
+         WHERE request_id = ?`,
+        [requestId]
+      );
+    }
+
+    if (status === "in_transit") {
+      await db.query(
+        `UPDATE RequestClaims SET status = 'in_transit'
+         WHERE request_id = ?`,
+        [requestId]
+      );
+    }
+
+    if (status === "delivered") {
+      await db.query(
+        `UPDATE RequestClaims 
+         SET status = 'delivered'
+         WHERE request_id = ?`,
+        [requestId]
+      );
+    }
+
+    res.json({
+      request_id: requestId,
+      status,
+      message: "Status updated and synchronized with claim record."
+    });
+
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Server error updating medical request status" });
+    res.status(500).json({ error: "Server error updating request status" });
   }
 };
 
