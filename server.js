@@ -40,7 +40,7 @@ app.use("/api/cases",casesRoutes);
 app.use("/api/sponsorships",sponsorshipsRoutes);
 app.use("/api/donors",donorRoutes);
 app.use("/api/donations",donationRoutes);
-app.use("/api/medicalrequest",medicalrequest);
+app.use("/api/medical-request",medicalrequest);
 
 
 
