@@ -19,7 +19,7 @@ router.get('/:id', authenticate, ctrl.getMedicalRequestById);
 router.post('/:id/claim', authenticate, authorizeRoles('ngo','donor','admin'), ctrl.claimMedicalRequest);
 
 // Update status (only claimant or admin)
-router.put('/:id/status', authenticate, authorizeRoles('ngo','donor','admin','admin'), ctrl.updateMedicalRequestStatus);
+router.put('/:id/status', authenticate, authorizeRoles('ngo','donor','admin'), ctrl.updateMedicalRequestStatus);
 
 // Cancel claim (claimant or admin)
 router.post('/:id/cancel', authenticate, authorizeRoles('ngo','donor','admin'), ctrl.cancelClaim);
