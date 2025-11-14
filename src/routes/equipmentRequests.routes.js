@@ -6,12 +6,12 @@ import {
   updateEquipmentRequestStatus
 } from "../controllers/equipmentRequests.controller.js";
 
-import { auth } from "../middleware/auth.js";
+import { authorizeRoles } from '../middleware/authorize.middleware.js';
 
 const router = express.Router();
 
-router.post("/", auth, createEquipmentRequest);
-router.post("/:id/claim", auth, claimEquipmentRequest);
-router.patch("/:id/status", auth, updateEquipmentRequestStatus);
+router.post("/", authorizeRoles, createEquipmentRequest);
+router.post("/:id/claim", authorizeRoles, claimEquipmentRequest);
+router.patch("/:id/status", authorizeRoles, updateEquipmentRequestStatus);
 
 export default router;

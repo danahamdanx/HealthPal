@@ -7,14 +7,14 @@ import {
   updateEquipment,
   deleteEquipment
 } from "../controllers/equipmentInventory.controller.js";
-import { auth } from "../middleware/auth.js";
+import { authorizeRoles } from '../middleware/authorize.middleware.js';
 
 const router = express.Router();
 
-router.post("/", auth, createEquipment);
-router.get("/", auth, getAllEquipment);
-router.get("/:id", auth, getEquipmentById);
-router.put("/:id", auth, updateEquipment);
-router.delete("/:id", auth, deleteEquipment);
+router.post("/", authorizeRoles, createEquipment);
+router.get("/", authorizeRoles, getAllEquipment);
+router.get("/:id", authorizeRoles, getEquipmentById);
+router.put("/:id", authorizeRoles, updateEquipment);
+router.delete("/:id", authorizeRoles, deleteEquipment);
 
 export default router;
