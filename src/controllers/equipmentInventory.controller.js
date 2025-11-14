@@ -39,6 +39,30 @@ export const getAllEquipment = async (req, res) => {
   }
 };
 
+/** Get equipment filtered by category */
+export const getEquipmentByCategory = async (req, res) => {
+  try {
+    const category = req.params.category;
+
+    if (!category)
+      return res.status(400).json({ error: "Category is required" });
+
+    const [rows] = await db.query(
+      `SELECT * 
+       FROM EquipmentInventory 
+       WHERE category = ?
+       ORDER BY created_at DESC`,
+      [category]
+    );
+
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error fetching equipment by category" });
+  }
+};
+
+
 
 /** Get equipment by id */
 export const getEquipmentById = async (req, res) => {
