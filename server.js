@@ -13,6 +13,9 @@ import sponsorshipsRoutes from './src/routes/sponsorships.routes.js'
 import donorRoutes from './src/routes/donors.routes.js'
 import donationRoutes from './src/routes/donation.routes.js'
 import medicalrequest from './src/routes/medicalRequests.routes.js'
+import equipmentInventory from './src/routes/equipmentInventory.routes.js'
+import equipmentRequests from './src/routes/equipmentRequests.routes.js'
+
 
 
 
@@ -41,6 +44,9 @@ app.use("/api/sponsorships",sponsorshipsRoutes);
 app.use("/api/donors",donorRoutes);
 app.use("/api/donations",donationRoutes);
 app.use("/api/medical-requests",medicalrequest);
+app.use("/api/equipment-Inventory",equipmentInventory);
+app.use("/api/equipment-Requests",equipmentRequests);
+
 
 
 
