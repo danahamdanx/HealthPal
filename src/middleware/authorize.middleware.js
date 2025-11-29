@@ -1,9 +1,11 @@
-// ✅ Role-based Access Middleware
 export const authorizeRoles = (...allowedRoles) => {
   return (req, res, next) => {
-    if (!req.user || !allowedRoles.includes(req.user.role)) {
+    const role = req.user?.role || req.user?.user_type;   // ← added fallback
+
+    if (!role || !allowedRoles.includes(role)) {
       return res.status(403).json({ error: 'Forbidden: Insufficient permissions' });
     }
+
     next();
   };
 };
