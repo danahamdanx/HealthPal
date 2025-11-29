@@ -13,6 +13,6 @@ const router = express.Router();
 
 router.post("/",authenticate, authorizeRoles("patient"), createEquipmentRequest);
 router.post("/:id/claim",authenticate("admin","ngo","donor"), authorizeRoles, claimEquipmentRequest);
-router.patch("/:id/status",authenticate, authorizeRoles, updateEquipmentRequestStatus);
+router.patch("/:id/status",authenticate, authorizeRoles("admin","ngo","donor"), updateEquipmentRequestStatus);
 
 export default router;
