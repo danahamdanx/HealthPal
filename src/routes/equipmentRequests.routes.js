@@ -13,6 +13,6 @@ const router = express.Router();
 
 router.post("/",authenticate, authorizeRoles, createEquipmentRequest);
 router.post("/:id/claim",authenticate, authorizeRoles, claimEquipmentRequest);
-router.patch("/:id/status", authorizeRoles, updateEquipmentRequestStatus);
+router.patch("/:id/status",authenticate, authorizeRoles, updateEquipmentRequestStatus);
 
 export default router;
