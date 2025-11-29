@@ -11,7 +11,7 @@ import { authenticate } from "../middleware/authenticate.js";
 
 const router = express.Router();
 
-router.post("/",authenticate, authorizeRoles, createEquipmentRequest);
+router.post("/",authenticate, authorizeRoles("patient"), createEquipmentRequest);
 router.post("/:id/claim",authenticate, authorizeRoles, claimEquipmentRequest);
 router.patch("/:id/status",authenticate, authorizeRoles, updateEquipmentRequestStatus);
 

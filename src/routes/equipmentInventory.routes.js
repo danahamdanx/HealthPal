@@ -5,7 +5,8 @@ import {
   getAllEquipment,
   getEquipmentById,
   updateEquipment,
-  deleteEquipment
+  deleteEquipment,
+  getEquipmentByCategory
 } from "../controllers/equipmentInventory.controller.js";
 import { authorizeRoles } from '../middleware/authorize.middleware.js';
 import { authenticate } from "../middleware/authenticate.js";
@@ -17,6 +18,8 @@ router.post("/",authenticate, authorizeRoles("admin","ngo","donor"), createEquip
 router.get("/",authenticate, authorizeRoles("admin","patient","ngo","donor"), getAllEquipment);
 
 router.get("/:id",authenticate, authorizeRoles("admin","ngo","donor","patient"), getEquipmentById);
+router.get("/category/:category",authenticate, authorizeRoles("admin","ngo","donor","patient"), getEquipmentByCategory);
+
 
 router.put("/:id",authenticate, authorizeRoles("admin","ngo","donor"), updateEquipment);
 
