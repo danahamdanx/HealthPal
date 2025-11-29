@@ -12,7 +12,7 @@ import { authenticate } from "../middleware/authenticate.js";
 const router = express.Router();
 
 router.post("/",authenticate, authorizeRoles, createEquipmentRequest);
-router.post("/:id/claim", authorizeRoles, claimEquipmentRequest);
+router.post("/:id/claim",authenticate, authorizeRoles, claimEquipmentRequest);
 router.patch("/:id/status", authorizeRoles, updateEquipmentRequestStatus);
 
 export default router;
