@@ -54,3 +54,15 @@ router.get(
   authorizeRoles("doctor"),
   getDoctorTherapySessions
 );
+/* -------------------------------------------
+   Update therapy session status
+   Roles: doctor, admin
+-------------------------------------------- */
+router.patch(
+  "/:id/status",
+  authenticate,
+  authorizeRoles("doctor", "admin"),
+  updateTherapySessionStatus
+);
+
+export default router;
