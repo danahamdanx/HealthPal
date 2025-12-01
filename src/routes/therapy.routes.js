@@ -44,3 +44,13 @@ router.get(
   authorizeRoles("patient"),
   getPatientTherapySessions
 );
+/* -------------------------------------------
+   Get all sessions for logged-in doctor
+   Roles: doctor only
+-------------------------------------------- */
+router.get(
+  "/doctor/sessions",
+  authenticate,
+  authorizeRoles("doctor"),
+  getDoctorTherapySessions
+);
