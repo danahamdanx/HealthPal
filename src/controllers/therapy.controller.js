@@ -76,3 +76,26 @@ export const createTherapySession = async (req, res) => {
     res.status(500).json({ error: "Error creating therapy session" });
   }
 };
+
+/* ---------------------------------------------------
+   Get all therapy sessions for a patient
+--------------------------------------------------- */
+export const getPatientTherapySessions = async (req, res) => {
+  try {
+    if (!req.user.patient_id)
+      return res.status(403).json({ error: "Patients only" });
+
+    const [sessions] = await db.query(`
+      SELECT *
+      FROM TherapySessions
+      WHERE patient_id = ?
+      ORDER BY scheduled_time DESC
+    `, [req.user.patient_id]);
+
+    res.json(sessions);
+
+  } catch (err) {
+    console.error("Error fetching patient therapy sessions:", err);
+    res.status(500).json({ error: "Error fetching sessions" });
+  }
+};
