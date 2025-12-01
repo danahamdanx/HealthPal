@@ -22,3 +22,14 @@ router.get(
   authorizeRoles("patient", "admin", "ngo", "donor"),
   getTherapyDoctors
 );
+
+/* -------------------------------------------
+   Patient creates a therapy session
+   Roles: patient only
+-------------------------------------------- */
+router.post(
+  "/",
+  authenticate,
+  authorizeRoles("patient"),
+  createTherapySession
+);
