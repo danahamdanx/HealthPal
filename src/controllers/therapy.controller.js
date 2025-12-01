@@ -1,23 +1,55 @@
 import { db } from "../config/db.js";
 
+const therapySpecialties = [
+  "clinical psychology",
+  "psychology",
+  "counseling",
+  "psychiatry",
+  "behavioral therapy",
+  "aba therapy",
+  "speech therapy",
+  "speech and language",
+  "slp",
+  "occupational therapy",
+  "ot",
+  "physical therapy",
+  "physiotherapy",
+  "rehabilitation",
+  "family therapy",
+  "couples therapy",
+  "marriage counseling",
+  "child therapy",
+  "adolescent therapy",
+  "trauma therapy",
+  "ptsd therapy",
+  "addiction therapy",
+  "art therapy",
+  "music therapy",
+  "play therapy"
+];
+
 /* ---------------------------------------------------
    Get all doctors that provide therapy sessions
 --------------------------------------------------- */
 export const getTherapyDoctors = async (req, res) => {
   try {
-    const [doctors] = await db.query(`
-      SELECT doctor_id, user_id, specialty, bio, years_experience
-      FROM Doctors
-      WHERE specialty = 'therapy'
-    `);
+    const [rows] = await db.query(
+      `SELECT doctor_id, name, email, phone, specialty 
+       FROM Doctors`
+    );
 
-    res.json(doctors);
+    const filtered = rows.filter(d =>
+      therapySpecialties.includes(d.specialty.toLowerCase())
+    );
+
+    res.json(filtered);
 
   } catch (err) {
-    console.error("Error fetching therapy doctors:", err);
+    console.error(err);
     res.status(500).json({ error: "Error fetching therapy doctors" });
   }
 };
+
 
 /* ---------------------------------------------------
    Create a new therapy session (booking)
