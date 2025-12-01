@@ -1,23 +1,55 @@
 import { db } from "../config/db.js";
 
+const therapySpecialties = [
+  "clinical psychology",
+  "psychology",
+  "counseling",
+  "psychiatry",
+  "behavioral therapy",
+  "aba therapy",
+  "speech therapy",
+  "speech and language",
+  "slp",
+  "occupational therapy",
+  "ot",
+  "physical therapy",
+  "physiotherapy",
+  "rehabilitation",
+  "family therapy",
+  "couples therapy",
+  "marriage counseling",
+  "child therapy",
+  "adolescent therapy",
+  "trauma therapy",
+  "ptsd therapy",
+  "addiction therapy",
+  "art therapy",
+  "music therapy",
+  "play therapy"
+];
+
 /* ---------------------------------------------------
    Get all doctors that provide therapy sessions
 --------------------------------------------------- */
 export const getTherapyDoctors = async (req, res) => {
   try {
-    const [doctors] = await db.query(`
-      SELECT doctor_id, user_id, specialty, bio, years_experience
-      FROM Doctors
-      WHERE specialty = 'therapy'
-    `);
+    const [rows] = await db.query(
+      `SELECT doctor_id, name, email, phone, specialty 
+       FROM Doctors`
+    );
 
-    res.json(doctors);
+    const filtered = rows.filter(d =>
+      therapySpecialties.includes(d.specialty.toLowerCase())
+    );
+
+    res.json(filtered);
 
   } catch (err) {
-    console.error("Error fetching therapy doctors:", err);
+    console.error(err);
     res.status(500).json({ error: "Error fetching therapy doctors" });
   }
 };
+
 
 /* ---------------------------------------------------
    Create a new therapy session (booking)
@@ -37,7 +69,7 @@ export const createTherapySession = async (req, res) => {
       initial_concerns
     } = req.body;
 
-    // Check if doctor exists and is a therapy specialist
+    // Check if doctor exists
     const [doc] = await db.query(`
       SELECT specialty FROM Doctors WHERE doctor_id = ?
     `, [doctor_id]);
@@ -45,8 +77,11 @@ export const createTherapySession = async (req, res) => {
     if (!doc.length)
       return res.status(404).json({ error: "Doctor not found" });
 
-    if (doc[0].specialty !== "therapy")
-      return res.status(400).json({ error: "This doctor does not offer therapy" });
+    const doctorSpecialty = doc[0].specialty.toLowerCase();
+
+    // Check if specialty is inside therapy accepted list
+    if (!therapySpecialties.includes(doctorSpecialty))
+      return res.status(400).json({ error: "This doctor does not provide therapy services" });
 
     // Insert session
     const [result] = await db.query(`
@@ -77,6 +112,7 @@ export const createTherapySession = async (req, res) => {
   }
 };
 
+
 /* ---------------------------------------------------
    Get all therapy sessions for a patient
 --------------------------------------------------- */
@@ -100,6 +136,7 @@ export const getPatientTherapySessions = async (req, res) => {
   }
 };
 
+
 /* ---------------------------------------------------
    Get all therapy sessions for a doctor
 --------------------------------------------------- */
@@ -122,6 +159,8 @@ export const getDoctorTherapySessions = async (req, res) => {
     res.status(500).json({ error: "Error fetching sessions" });
   }
 };
+
+
 /* ---------------------------------------------------
    Update therapy session status (doctor only)
 --------------------------------------------------- */
@@ -140,7 +179,6 @@ export const updateTherapySessionStatus = async (req, res) => {
     if (!validStatuses.includes(status))
       return res.status(400).json({ error: "Invalid status" });
 
-    // Update status
     await db.query(`
       UPDATE TherapySessions 
       SET status = ?
@@ -159,5 +197,39 @@ export const updateTherapySessionStatus = async (req, res) => {
   } catch (err) {
     console.error("Error updating session status:", err);
     res.status(500).json({ error: "Error updating status" });
+  }
+};
+
+
+export const updateTherapySessionNotes = async (req, res) => {
+  try {
+    const { session_notes, progress_notes } = req.body;
+    const sessionId = req.params.id;
+
+    // تأكد أن الدكتور هو صاحب الجلسة
+    const [sessions] = await db.query(
+      `SELECT * FROM TherapySessions WHERE session_id = ? AND doctor_id = ?`,
+      [sessionId, req.user.doctor_id]
+    );
+
+    if (!sessions.length) return res.status(403).json({ error: "Not authorized" });
+
+    await db.query(
+      `UPDATE TherapySessions 
+       SET session_notes = ?, progress_notes = ?, status = 'completed'
+       WHERE session_id = ?`,
+      [session_notes || null, progress_notes || null, sessionId]
+    );
+
+    const [updated] = await db.query(
+      `SELECT * FROM TherapySessions WHERE session_id = ?`,
+      [sessionId]
+    );
+
+    res.json(updated[0]);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error updating session notes" });
   }
 };

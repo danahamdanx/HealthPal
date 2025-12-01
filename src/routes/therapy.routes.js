@@ -4,7 +4,8 @@ import {
   createTherapySession,
   getPatientTherapySessions,
   getDoctorTherapySessions,
-  updateTherapySessionStatus
+  updateTherapySessionStatus,
+  updateTherapySessionNotes
 } from "../controllers/therapy.controller.js";
 
 import { authenticate } from "../middleware/authenticate.js";
@@ -63,6 +64,13 @@ router.patch(
   authenticate,
   authorizeRoles("doctor", "admin"),
   updateTherapySessionStatus
+);
+
+router.patch(
+  "/:id/notes",
+  authenticate,
+  authorizeRoles("doctor"),
+  updateTherapySessionNotes
 );
 
 export default router;
