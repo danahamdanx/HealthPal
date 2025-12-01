@@ -33,3 +33,14 @@ router.post(
   authorizeRoles("patient"),
   createTherapySession
 );
+
+/* -------------------------------------------
+   Get all sessions for logged-in patient
+   Roles: patient only
+-------------------------------------------- */
+router.get(
+  "/patient/sessions",
+  authenticate,
+  authorizeRoles("patient"),
+  getPatientTherapySessions
+);
