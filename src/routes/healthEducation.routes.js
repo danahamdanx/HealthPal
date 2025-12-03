@@ -1,6 +1,6 @@
 import express from "express";
 import {
-  createHealthGuide, getHealthGuides,
+  createHealthGuide,
   createPublicHealthAlert, getPublicHealthAlerts,
   createHealthWorkshop, getHealthWorkshops
 } from "../controllers/healthEducation.controller.js";
@@ -11,7 +11,6 @@ import { authorizeRoles } from "../middleware/authorize.middleware.js";
 const router = express.Router();
 
 /* Health Guides */
-router.get("/guides", getHealthGuides);
 router.post("/guides", authenticate, authorizeRoles("admin"), createHealthGuide);
 
 /* Public Health Alerts */

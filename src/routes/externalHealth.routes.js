@@ -5,8 +5,11 @@ fetchAndStoreEnglishArticles
 } from "../controllers/externalHealth.controller.js";
 const router = express.Router();
 
-router.get("/external-arabic_articles", getArabicArticles);
-router.get("/external-english_articles", fetchAndStoreEnglishArticles);
+// Arabic articles from DB
+router.get("/ar", getArabicArticles);
+
+// English articles from RSS feed + store
+router.get("/en", fetchAndStoreEnglishArticles);
 
 
 export default router;
