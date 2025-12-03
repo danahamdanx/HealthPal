@@ -2,6 +2,8 @@
 import axios from "axios";
 import { XMLParser } from "fast-xml-parser";
 import { db } from "../config/db.js";
+import Parser from "rss-parser";  // استيراد المكتبة
+
 
 /* ---------------------------
    Get Arabic articles from DB
@@ -21,45 +23,42 @@ export const getArabicArticles = async (req, res) => {
 /* ---------------------------
    Get English articles from RSS feed & store in DB
 --------------------------- */
+/** Fetch and store English health articles */
+const parser = new Parser();      // إنشاء instance لاستخدامه
+
 export const fetchAndStoreEnglishArticles = async (req, res) => {
   try {
     const rssUrl = "https://www.who.int/rss-feeds/news-english.xml";
-    const response = await axios.get(rssUrl);
-    const xmlData = response.data;
+    const feed = await parser.parseURL(rssUrl);
 
-    const parser = new XMLParser({ ignoreAttributes: false });
-    const jsonData = parser.parse(xmlData);
-    const items = jsonData.rss?.channel?.item || [];
+    const articles = feed.items.map(item => ({
+      title: item.title,
+      category: item.categories ? item.categories.join(", ") : "general",
+      content: item.contentSnippet || item.content || "",
+      image_url: null,
+      language: "en"
+    }));
 
-    for (let item of items) {
-      const title = item.title || "";
-      const category = item.category || "general";
-      const content = item.description || "";
-      const link = item.link || "";
-
-      if (!link) continue; // نتجاهل المقالات بدون رابط
-
-      // تحقق من التكرار
+    // حفظ المقالات بدون تكرار حسب العنوان + اللغة
+    for (let art of articles) {
       const [existing] = await db.query(
-        "SELECT * FROM HealthGuides WHERE link = ?",
-        [link]
+        `SELECT * FROM HealthGuides WHERE title = ? AND language = ?`,
+        [art.title, art.language]
       );
 
       if (!existing.length) {
         await db.query(
-          `INSERT INTO HealthGuides (title, category, content, language, link)
-           VALUES (?, ?, ?, 'en', ?)`,
-          [title, category, content, link]
+          `INSERT INTO HealthGuides (title, category, content, language, image_url)
+           VALUES (?, ?, ?, ?, ?)`,
+          [art.title, art.category, art.content, art.language, art.image_url]
         );
       }
     }
 
-    // جلب جميع المقالات الإنجليزية بعد التخزين
-    const [englishArticles] = await db.query(
-      "SELECT * FROM HealthGuides WHERE language = 'en' ORDER BY created_at DESC"
-    );
-
-    res.json(englishArticles);
+res.json({
+  count: articles.length,
+  articles  // هذا يعرض جميع المقالات اللي جلبناها من الـ RSS
+});
 
   } catch (err) {
     console.error("Error fetching or storing English articles:", err);
