@@ -1,16 +1,14 @@
 import express from "express";
 import {
   createHealthWorkshop,
-  getAllHealthWorkshops,
-  getSingleWorkshop,
+  getHealthWorkshops,
   registerForWorkshop,
   getWorkshopParticipants,
   getMyWorkshops
 } from "../controllers/healthWorkshops.controller.js";
 
-import authenticate from "../middleware/authenticate.js";
-import authorize from "../middleware/authorize.middleware.js";
-
+import { authenticate } from "../middleware/authenticate.js";
+import { authorizeRoles } from "../middleware/authorize.middleware.js";
 const router = express.Router();
 
 /*  
@@ -21,21 +19,17 @@ const router = express.Router();
 router.post(
   "/workshops",
   authenticate,
-  authorize("admin"),
+  authorizeRoles("admin"),
   createHealthWorkshop
 );
 
 // Get all workshops (public)
 router.get(
   "/workshops",
-  getAllHealthWorkshops
+  getHealthWorkshops
 );
 
-// Get single workshop info
-router.get(
-  "/workshops/:id",
-  getSingleWorkshop
-);
+
 
 // Register user in workshop
 router.post(
@@ -48,9 +42,8 @@ router.post(
 router.get(
   "/workshops/:id/participants",
   authenticate,
-  authorize("admin"),
-  getWorkshopParticipants
-);
+  authorizeRoles("admin"),
+getWorkshopParticipants);
 
 // Get workshops the current user is registered in
 router.get(
