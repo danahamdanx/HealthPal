@@ -17,6 +17,10 @@ import equipmentInventory from './src/routes/equipmentInventory.routes.js'
 import equipmentRequests from './src/routes/equipmentRequests.routes.js'
 import therapyRoutes from "./src/routes/therapy.routes.js";
 import healthEducationRoutes from "./src/routes/healthEducation.routes.js";
+import externalHealthRoutes from "./src/routes/externalHealth.routes.js";
+import workshopRoutes from "./src/routes/healthWorkshops.routes.js";
+
+
 
 
 
@@ -52,10 +56,8 @@ app.use("/api/equipment-Inventory",equipmentInventory);
 app.use("/api/equipment-Requests",equipmentRequests);
 app.use("/api/therapy", therapyRoutes);
 app.use("/api/health_alert",healthEducationRoutes);
-
-
-
-
+app.use("/api/external_health_article", externalHealthRoutes);
+app.use("/api", workshopRoutes);
 
 
 
