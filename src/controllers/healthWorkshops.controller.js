@@ -1,3 +1,5 @@
+
+import { db } from "../config/db.js";
 export const getHealthWorkshops = async (req, res) => {
   try {
     const [rows] = await db.query("SELECT * FROM HealthWorkshops ORDER BY start_time ASC");

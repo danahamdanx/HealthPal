@@ -1,4 +1,6 @@
 import express from "express";
+import { db } from "../config/db.js";
+
 import {
   createHealthWorkshop,
   getHealthWorkshops,
@@ -19,7 +21,7 @@ const router = express.Router();
 router.post(
   "/workshops",
   authenticate,
-  authorizeRoles("admin"),
+  authorizeRoles("admin","ngo"),
   createHealthWorkshop
 );
 
