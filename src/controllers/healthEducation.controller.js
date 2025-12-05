@@ -78,7 +78,62 @@ export const createHealthWorkshop = async (req, res) => {
 
     res.status(201).json(workshop[0]);
 
-  } catch {
-    res.status(500).json({ error: "Error creating workshop" });
+ } catch (err) {
+  console.error("Create Workshop Error:", err);
+  res.status(500).json({ error: "Error creating workshop" });
+}
+
+};
+
+export const registerForWorkshop = async (req, res) => {
+  try {
+    const userId = req.user.user_id;   // من التوكن
+    const { id: workshopId } = req.params;
+
+    // 1) تأكد أن الورشة موجودة
+    const [workshop] = await db.query(
+      `SELECT * FROM HealthWorkshops WHERE workshop_id = ?`,
+      [workshopId]
+    );
+
+    if (workshop.length === 0) {
+      return res.status(404).json({ error: "Workshop not found" });
+    }
+
+    // 2) تأكد ما سجّل قبل
+    const [existing] = await db.query(
+      `SELECT * FROM WorkshopRegistrations WHERE workshop_id = ? AND user_id = ?`,
+      [workshopId, userId]
+    );
+
+    if (existing.length > 0) {
+      return res.status(400).json({ error: "Already registered in this workshop" });
+    }
+
+    // 3) تأكد إنه لسه في أماكن فاضية
+    const [count] = await db.query(
+      `SELECT COUNT(*) AS total FROM WorkshopRegistrations WHERE workshop_id = ?`,
+      [workshopId]
+    );
+
+    if (workshop[0].max_attendees && count[0].total >= workshop[0].max_attendees) {
+      return res.status(400).json({ error: "Workshop is full" });
+    }
+
+    // 4) سجّل المستخدم
+    const [result] = await db.query(
+      `INSERT INTO WorkshopRegistrations (workshop_id, user_id) VALUES (?, ?)`,
+      [workshopId, userId]
+    );
+
+    res.status(201).json({
+      message: "Registration successful",
+      registration_id: result.insertId
+    });
+
+  } catch (err) {
+    console.error("Register Workshop Error:", err);
+    res.status(500).json({ error: "Error registering for workshop" });
   }
 };
+
