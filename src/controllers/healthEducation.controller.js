@@ -137,3 +137,21 @@ export const registerForWorkshop = async (req, res) => {
   }
 };
 
+export const getWorkshopParticipants = async (req, res) => {
+  try {
+    const { id: workshopId } = req.params;
+
+    const [data] = await db.query(
+      `SELECT u.user_id, u.name, u.email, r.registration_date
+       FROM WorkshopRegistrations r
+       JOIN Users u ON r.user_id = u.user_id
+       WHERE r.workshop_id = ?`,
+      [workshopId]
+    );
+
+    res.json(data);
+
+  } catch {
+    res.status(500).json({ error: "Error fetching participants" });
+  }
+};
