@@ -1,4 +1,6 @@
 import { db } from '../config/db.js';
+import { generateDonationInvoice } from '../utils/pdfGenerator.js';
+
 
 export const createDonation = async (req, res) => {
   try {
@@ -41,16 +43,31 @@ if (!caseData.verified || caseData.status === 'pending_verification') {
       `UPDATE Donors SET total_donated = total_donated + ? WHERE donor_id = ?`,
       [donationAmount, donor_id]
     );
+    // Fetch donor & case info for the invoice
+    const [donorRows] = await db.query('SELECT name, email FROM Donors WHERE donor_id = ?', [donor_id]);
+    const donor = donorRows[0];
+
+    const [caseRows2] = await db.query('SELECT title FROM Cases WHERE case_id = ?', [case_id]);
+    // Generate PDF invoice
+    const pdfPath = await generateDonationInvoice({
+      donorName: donor.name,
+      caseTitle: caseData.title,
+      amount: donationAmount,
+      date: new Date().toLocaleDateString()
+    });
+
     res.status(201).json({
       message: 'Donation successful',
       updated_case: {
         case_id,
         raised_amount: newRaised,
         status: newStatus
-      }
+      },
+      invoice: pdfPath
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error processing donation' });
   }
 };
+  
