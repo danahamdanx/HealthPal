@@ -9,7 +9,14 @@ const router = express.Router();
 router.get('/', authenticate, ctrl.getAllDoctors);
 
 // ✅ GET single doctor (authenticated)
+// GET doctors by specialty (must come BEFORE /:id)
+router.get('/by-specialty', authenticate, ctrl.getDoctorsBySpecialty);
+
+// GET single doctor by ID
 router.get('/:id', authenticate, ctrl.getDoctorById);
+
+
+
 
 // ✅ POST new doctor (admin only)
 router.post('/', authenticate, authorizeRoles('admin'), ctrl.createDoctor);
