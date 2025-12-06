@@ -90,10 +90,10 @@ export const createConsultation = async (req, res) => {
       // Send email notification
       await sendEmail({
         email: patient.email,
-        subject: 'Appointment Scheduled',
-        message: `Hello ${patient.name},\n\nYour appointment is scheduled for ${scheduled_time} with doctor ID ${doctor_id}.\n\nThank you!`,
+        subject: 'Appointment Pending',
+        message: `Hello ${patient.name},\n\nYour appointment is Pending for ${scheduled_time} with doctor ID ${doctor_id}.\n\nThank you!`,
         html: `<p>Hello ${patient.name},</p>
-               <p>Your appointment is scheduled for <strong>${scheduled_time}</strong> with doctor ID <strong>${doctor_id}</strong>.</p>
+               <p>Your appointment is Pending for <strong>${scheduled_time}</strong> with doctor ID <strong>${doctor_id}</strong>.</p>
                <p>Thank you!</p>`
       });
     }
@@ -119,16 +119,12 @@ export const updateConsultation = async (req, res) => {
     const updates = [];
     const values = [];
 
-    // Patient can only update these
     const patientFields = ['scheduled_time', 'consultation_type', 'translation_needed'];
-
-    // Doctor can update status, notes, diagnosis, treatment
     const doctorFields = ['status', 'notes', 'diagnosis', 'treatment'];
 
     if (role === 'patient') {
       if (consultation.patient_id !== userPatientId)
         return res.status(403).json({ error: 'Not authorized' });
-
       patientFields.forEach(f => {
         if (req.body[f] !== undefined) {
           updates.push(`${f} = ?`);
@@ -138,7 +134,6 @@ export const updateConsultation = async (req, res) => {
     } else if (role === 'doctor') {
       if (consultation.doctor_id !== userDoctorId)
         return res.status(403).json({ error: 'Not authorized' });
-
       doctorFields.forEach(f => {
         if (req.body[f] !== undefined) {
           updates.push(`${f} = ?`);
@@ -146,7 +141,6 @@ export const updateConsultation = async (req, res) => {
         }
       });
     } else if (role === 'admin') {
-      // Admin can update everything
       Object.keys(req.body).forEach(f => {
         updates.push(`${f} = ?`);
         values.push(req.body[f]);
@@ -158,18 +152,35 @@ export const updateConsultation = async (req, res) => {
     if (!updates.length) return res.status(400).json({ error: 'No valid fields to update' });
 
     values.push(req.params.id);
-    const [result] = await db.query(
-      `UPDATE Consultations SET ${updates.join(', ')} WHERE consultation_id = ?`,
-      values
-    );
+    await db.query(`UPDATE Consultations SET ${updates.join(', ')} WHERE consultation_id = ?`, values);
 
-    const [updated] = await db.query('SELECT * FROM Consultations WHERE consultation_id = ?', [req.params.id]);
-    res.json(updated[0]);
+    const [updatedRows] = await db.query('SELECT * FROM Consultations WHERE consultation_id = ?', [req.params.id]);
+    const updatedConsultation = updatedRows[0];
+
+    // Send email to patient
+    const [patientRows] = await db.query('SELECT name, email FROM Patients WHERE patient_id = ?', [consultation.patient_id]);
+    const patient = patientRows[0];
+
+    if (patient && patient.email) {
+      await sendEmail({
+        email: patient.email,
+        subject: 'Consultation Updated',
+        message: `Hello ${patient.name},\n\nYour consultation has been updated.\nCurrent Status: ${updatedConsultation.status}\nScheduled Time: ${updatedConsultation.scheduled_time}\n\nThank you!`,
+        html: `<p>Hello ${patient.name},</p>
+               <p>Your consultation has been updated.</p>
+               <p><strong>Status:</strong> ${updatedConsultation.status}</p>
+               <p><strong>Scheduled Time:</strong> ${updatedConsultation.scheduled_time}</p>
+               <p>Thank you!</p>`
+      });
+    }
+
+    res.json(updatedConsultation);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Database error updating consultation' });
   }
 };
+
 /**
  * Update only the status of a consultation
  */
@@ -180,26 +191,40 @@ export const updateConsultationStatus = async (req, res) => {
 
     if (!status) return res.status(400).json({ error: 'Status is required' });
 
-    // Allowed status values for a consultation
     const allowedStatus = ['pending', 'scheduled', 'canceled', 'completed'];
     if (!allowedStatus.includes(status))
       return res.status(400).json({ error: `Invalid status. Allowed: ${allowedStatus.join(', ')}` });
 
-    const [result] = await db.query(
-      'UPDATE Consultations SET status = ? WHERE consultation_id = ?',
-      [status, id]
-    );
+    const [result] = await db.query('UPDATE Consultations SET status = ? WHERE consultation_id = ?', [status, id]);
+    if (result.affectedRows === 0) return res.status(404).json({ error: 'Consultation not found' });
 
-    if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Consultation not found' });
+    const [updatedRows] = await db.query('SELECT * FROM Consultations WHERE consultation_id = ?', [id]);
+    const updatedConsultation = updatedRows[0];
 
-    const [updated] = await db.query('SELECT * FROM Consultations WHERE consultation_id = ?', [id]);
-    res.json(updated[0]);
+    // Send email to patient
+    const [patientRows] = await db.query('SELECT name, email FROM Patients WHERE patient_id = ?', [updatedConsultation.patient_id]);
+    const patient = patientRows[0];
+
+    if (patient && patient.email) {
+      await sendEmail({
+        email: patient.email,
+        subject: 'Consultation Status Updated',
+        message: `Hello ${patient.name},\n\nThe status of your consultation has been updated to: ${status}.\nScheduled Time: ${updatedConsultation.scheduled_time}\n\nThank you!`,
+        html: `<p>Hello ${patient.name},</p>
+               <p>The status of your consultation has been updated.</p>
+               <p><strong>Status:</strong> ${status}</p>
+               <p><strong>Scheduled Time:</strong> ${updatedConsultation.scheduled_time}</p>
+               <p>Thank you!</p>`
+      });
+    }
+
+    res.json(updatedConsultation);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Database error updating consultation status' });
   }
 };
+
 
 
 // ✅ Delete a consultation
