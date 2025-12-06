@@ -21,10 +21,10 @@ Your all-in-one platform for healthcare management, connecting patients, doctors
 ## GitHub Repository Information :small_blue_diamond:
 
 <p>
-  :file_folder: <a href="https://github.com/joodhamdallah/HealthPal"><img src="https://img.shields.io/github/repo-size/joodhamdallah/HealthPal" alt="Size"></a> &nbsp;
-  :open_file_folder: <a href="https://github.com/joodhamdallah/HealthPal"><img src="https://img.shields.io/github/directory-file-count/joodhamdallah/HealthPal" alt="Files"></a> &nbsp;
-  :date: <a href="https://github.com/joodhamdallah/HealthPal"><img src="https://img.shields.io/github/last-commit/joodhamdallah/HealthPal/main" alt="Last Commit"></a> &nbsp;
-  :busts_in_silhouette: <a href="https://github.com/joodhamdallah/HealthPal"><img src="https://img.shields.io/github/contributors/joodhamdallah/HealthPal" alt="Contributors"></a> &nbsp;
+  :file_folder: <a href="https://github.com/danahamdanx/HealthPal"><img src="https://img.shields.io/github/repo-size/danahamdanx/HealthPal" alt="Size"></a> &nbsp;
+  :open_file_folder: <a href="https://github.com/danahamdanx/HealthPal"><img src="https://img.shields.io/github/directory-file-count/danahamdanx/HealthPal" alt="Files"></a> &nbsp;
+  :date: <a href="https://github.com/danahamdanx/HealthPal"><img src="https://img.shields.io/github/last-commit/danahamdanx/HealthPal/main" alt="Last Commit"></a> &nbsp;
+  :busts_in_silhouette: <a href="https://github.com/danahamdanx/HealthPal"><img src="https://img.shields.io/github/contributors/danahamdanx/HealthPal" alt="Contributors"></a> &nbsp;
 </p>
 
 # Table of Contents ℹ️
@@ -130,5 +130,5 @@ Your all-in-one platform for healthcare management, connecting patients, doctors
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/username/HealthPal.git]
+   git clone [https://github.com/danahamdanx/HealthPal.git]
    ```
