@@ -109,8 +109,8 @@ Your all-in-one platform for healthcare management, connecting patients, doctors
 
 ## External APIs Used📌
 
-- OpenRouteService API: Calculates distances and logistics for medical deliveries.
-- OpenStreetMap Nominatim API: Converts addresses to geolocation coordinates for accurate tracking.
+- WHO RSS Feed: Provides the latest English health articles for aggregation and storage in the database.
+- (Optional) Fast XML Parser: Parses XML data from RSS feeds when needed.
 
 ## External Libraries and Packages📦
 
