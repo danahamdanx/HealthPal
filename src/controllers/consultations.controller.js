@@ -1,4 +1,6 @@
 import { db } from '../config/db.js';
+import { sendEmail } from '../utils/mailer.js';
+
 
 // ✅ Get all consultations
 export const getAllConsultations = async (req, res) => {
@@ -52,21 +54,22 @@ export const getConsultationById = async (req, res) => {
   }
 };
 
+
 export const createConsultation = async (req, res) => {
   try {
     const { patient_id, doctor_id, scheduled_time, consultation_type, translation_needed } = req.body;
 
-    // Only patient can create consultations
-    if (!patient_id || !doctor_id || !scheduled_time || !consultation_type||!translation_needed) {
+    if (!patient_id || !doctor_id || !scheduled_time || !consultation_type || translation_needed === undefined) {
       return res.status(400).json({ error: 'Required fields missing' });
     }
 
-    // Status defaults to 'pending'
+    // Default values for new consultation
     const status = 'pending';
     const notes = null;
     const diagnosis = null;
     const treatment = null;
 
+    // Insert into database
     const [result] = await db.query(
       `INSERT INTO Consultations 
       (patient_id, doctor_id, scheduled_time, status, consultation_type, translation_needed, notes, diagnosis, treatment)
@@ -79,12 +82,29 @@ export const createConsultation = async (req, res) => {
       [result.insertId]
     );
 
+    // Fetch patient details for email
+    const [patientRows] = await db.query('SELECT name, email FROM Patients WHERE patient_id = ?', [patient_id]);
+    const patient = patientRows[0];
+
+    if (patient && patient.email) {
+      // Send email notification
+      await sendEmail({
+        email: patient.email,
+        subject: 'Appointment Scheduled',
+        message: `Hello ${patient.name},\n\nYour appointment is scheduled for ${scheduled_time} with doctor ID ${doctor_id}.\n\nThank you!`,
+        html: `<p>Hello ${patient.name},</p>
+               <p>Your appointment is scheduled for <strong>${scheduled_time}</strong> with doctor ID <strong>${doctor_id}</strong>.</p>
+               <p>Thank you!</p>`
+      });
+    }
+
     res.status(201).json(newConsultation[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Database error creating consultation' });
   }
 };
+
 
 
 // ✅ Update a consultation
