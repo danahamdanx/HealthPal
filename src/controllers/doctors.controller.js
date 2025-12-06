@@ -14,25 +14,22 @@ export const {
 );
 
 // ✅ Custom function: Get doctors by category
-export const getDoctorsByCategory = async (req, res) => {
+export const getDoctorsBySpecialty = async (req, res) => {
   try {
-    const { category, value } = req.query; // e.g., ?category=specialty&value=Cardiology
+    const { specialty } = req.query; // e.g., ?specialty=Cardiology
 
-    if (!category || !value) {
-      return res.status(400).json({ error: 'Category and value are required' });
+    if (!specialty) {
+      return res.status(400).json({ error: 'Specialty is required' });
     }
 
-    // Optional: validate allowed columns to prevent SQL injection
-    const allowedColumns = ['specialty', 'hospital_name', 'gender', 'qualification'];
-    if (!allowedColumns.includes(category)) {
-      return res.status(400).json({ error: 'Invalid category' });
-    }
-
-    const [rows] = await db.query(`SELECT * FROM Doctors WHERE ${category} = ? ORDER BY name ASC`, [value]);
+    const [rows] = await db.query(
+      'SELECT * FROM Doctors WHERE specialty = ? ORDER BY name ASC',
+      [specialty]
+    );
 
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Database error fetching doctors by category' });
+    res.status(500).json({ error: 'Database error fetching doctors by specialty' });
   }
 };
