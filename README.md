@@ -1,230 +1,134 @@
-<div align="center">
-  <img src="assets/logo.png" alt="HealthPal Logo" width="300"/>
+# HealthPal
 
-  <h1>HealthPal</h1>
-  <p>A complete healthcare management platform for patients, doctors, NGOs, and medical teams.</p>
+<div>
+<p align="center">
+  <img src="assets/logo.png" alt="HealthPal Logo"  height="350" width="350"/>
+</p>
+<h3 align="center">HealthPal</h3>
+
+  <p align="center">
+Your all-in-one platform for healthcare management, connecting patients, doctors, NGOs, donors, and medical services.
+    <br />
+    <a href="https://github.com/joodhamdallah/HealthPal/wiki/HealthPal-Wiki"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://drive.google.com/file/d/1JWYMJUP-ZTfPFAo5BEffEkdLJMWE_TDN/view?usp=sharing">View Demo</a>
+  </p>
 </div>
 
----
+**HealthPal** is a comprehensive healthcare platform that empowers patients, doctors, NGOs, donors, and administrators to manage medical services efficiently. From scheduling consultations and therapy sessions to managing donations, medical equipment, health articles, and public alerts, HealthPal streamlines all healthcare operations in one intuitive platform.
 
-## **HealthPal**
+## GitHub Repository Information :small_blue_diamond:
 
-HealthPal is an integrated healthcare management system designed to streamline medical workflows, patient support, donation activities, therapy management, and health education.  
-It provides a unified platform for patients, doctors, NGOs, health workers, and administrators to interact efficiently while ensuring security, automation, and accurate data handling.
+<p>
+  :file_folder: <a href="https://github.com/joodhamdallah/HealthPal"><img src="https://img.shields.io/github/repo-size/joodhamdallah/HealthPal" alt="Size"></a> &nbsp;
+  :open_file_folder: <a href="https://github.com/joodhamdallah/HealthPal"><img src="https://img.shields.io/github/directory-file-count/joodhamdallah/HealthPal" alt="Files"></a> &nbsp;
+  :date: <a href="https://github.com/joodhamdallah/HealthPal"><img src="https://img.shields.io/github/last-commit/joodhamdallah/HealthPal/main" alt="Last Commit"></a> &nbsp;
+  :busts_in_silhouette: <a href="https://github.com/joodhamdallah/HealthPal"><img src="https://img.shields.io/github/contributors/joodhamdallah/HealthPal" alt="Contributors"></a> &nbsp;
+</p>
 
-With structured modules for consultations, therapy sessions, medical equipment requests, workshops, donations, alerts, and more — HealthPal delivers a seamless medical experience for every user role.
+# Table of Contents ℹ️
 
----
+- [HealthPal](#healthpal)
+- [Core Features](#core-features)
+- [Extra Features](#extra-features)
+- [Technologies Used](#technologies-used)
+- [External APIs Used](#external-apis-used)
+- [External Libraries and Packages](#external-libraries-and-packages)
+- [Installation](#installation)
 
-## **GitHub Repository Information 🔹**
+## Core Features⭐
 
-📁 Size  📂 Files  📅 Last Commit  👥 Contributors
+1. Patient and Doctor Management:
 
----
+   - Create, update, and view patient and doctor profiles.
+   - Track patient medical history, demographics, and health records.
+   - Doctors can manage consultations, diagnoses, and treatments.
 
-## **Table of Contents ℹ️**
+2. Consultations & Therapy Sessions:
+   - Schedule consultations with doctors.
+   - Book therapy sessions with specialists.
+   - Track session progress, notes, and status.
+   - Doctors and patients have separate views for session management.
+3. NGO Support & Donations:
 
-- HealthPal
-- Core Features
-- Extra Features
-- Technologies Used
-- External APIs Used
-- External Libraries and Packages
-- Installation
+   - NGOs can register, verify requests, and manage aid cases.
+   - Donors can contribute to patient cases and track donations.
+   - Full audit of donor contributions and case progress.
 
----
+4. Medical Requests & Equipment Management:
 
-# **Core Features ⭐**
+   - Submit and manage medical supply requests.
+   - NGOs can claim requests and update their status.
+   - Add, update, and track medical equipment availability and conditions.
 
-## **Patient & Doctor Management**
+5. Health Articles & Alerts:
+   - Publish, retrieve, and categorize health guides and articles.
+   - Post public health alerts with severity levels.
+6. Workshops & Community Education:
+   - Host health workshops with registration management.
+   - Track participants and manage schedules.
 
-- Patients and doctors have fully structured profiles with medical history, specialization, availability, and license verification.
-- Doctors can update qualifications, schedules, and availability for sessions.
-- Patients can manage their personal details and participate in consultations or therapies.
+## Extra Features⭐⭐
 
----
+1. Roles: Supports multiple user roles for secure operations🙌
 
-## **Consultations**
+   - Admins: Full control over platform operations and data.
+   - Doctors: Manage consultations, diagnoses, and therapy sessions.
+   - Patients: Request medical assistance, attend consultations and therapy.
+   - NGOs: Manage aid cases and claim requests.
+   - Donors: Contribute to cases and track donations.
 
-- Patients can request consultations with available doctors.
-- Doctors manage scheduled times, diagnosis, notes, and session outcomes.
-- Translation support for multilingual diagnosis notes.
+2. Notifications & Alerts:💌
 
----
+   - Email notifications for appointments, sessions, donations, and equipment claims.
+   - Health alerts notify users of urgent community health issues.
 
-## **Therapy Sessions**
+3. Data Security & Privacy:🛡
 
-- Structured therapy sessions with schedules, modes, recurring options, and duration.
-- Therapists can submit notes and track session progress.
-- Patients receive updates and session reminders.
+   - Secure storage of user credentials with password hashing.
+   - JWT tokens for role-based access control.
+   - All sensitive actions require authentication.
 
----
+4. Reporting & Tracking:📊
 
-## **Medical Equipment Requests**
+   - Track donations, case progress, medical requests, and therapy sessions.
+   - Administrators can monitor all platform activities for oversight.
 
-- Patients can request medical equipment from the inventory.
-- Each item has:
-  - Condition
-  - Availability status
-  - Location & contact info
-- Requests can be claimed by medical staff and updated through their lifecycle.
+5. Error Handling and Logging:
+   - Specific error messages and logs to support debugging and monitoring.
 
----
+## Technologies Used⚙
 
-## **Public Health Alerts**
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-000000?style=for-the-badge&logo=express&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Postman](https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white)
+![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
+![Swagger](https://img.shields.io/badge/Swagger-85C9B8?style=for-the-badge&logo=swagger&logoColor=white)
 
-- Admins can publish urgent health alerts for specific regions.
-- Alerts include severity, category, timestamps, and messages.
-- Users can view alerts based on location or category.
+## External APIs Used📌
 
----
+- OpenRouteService API: Calculates distances and logistics for medical deliveries.
+- OpenStreetMap Nominatim API: Converts addresses to geolocation coordinates for accurate tracking.
 
-## **Workshops & Registrations**
+## External Libraries and Packages📦
 
-- Healthcare workshops can be created with scheduling, capacity limits, and modes.
-- Users can register for workshops and track their enrollment.
-- Organizers can see participants and session details.
-
----
-
-## **NGOs & Donor Management**
-
-- NGOs have profiles with their mission and registration details.
-- Donation campaigns can be created with targets and progress tracking.
-- Donors contribute and receive confirmation records.
-- Full donation logs and donor history included.
-
----
-
-# **Extra Features ⭐⭐**
-
-## **Roles — Multi-Level System 🙌**
-
-HealthPal supports several essential roles:
-
-### **Admins**
-
-Manage all platform data, users, workshops, alerts, and system logs.
-
-### **Doctors**
-
-Provide consultations, conduct therapy sessions, and manage availability.
-
-### **Patients**
-
-Request services, attend workshops, join sessions, and track medical activity.
-
-### **NGOs**
-
-Create donation campaigns, manage cases, and track contributions.
-
-### **Donors**
-
-Donate safely through verified NGO cases and track their donation history.
-
----
-
-## **Billing & Financial Tracking 💸**
-
-- Therapy, workshop, and donation confirmations generate structured records.
-- Email notifications sent with PDF summaries (if enabled).
-- Admins can view all platform transactions and billing logs.
-
----
-
-## **User Privacy & Data Security 🪪**
-
-- Passwords stored with hashing & encryption.
-- Token-based authentication for each login.
-- Role-based authorization ensures restricted access.
-- Email validation required for password updates.
-- Sessions and logs maintained for security auditing.
-
----
-
-## **Returning Equipment Management 📌**
-
-- Staff assess item condition upon return.
-- Determines returnable deposit amount.
-- Overdue equipment triggers automated overtime charges.
-- Automated reminders sent one day before the scheduled return.
-
----
-
-## **Error Handling & Logging**
-
-- Clear and structured API error responses.
-- Logs stored for:
-  - User actions
-  - Failed operations
-  - System events
-- Helps admins and developers debug easily.
-
----
-
-# **Technologies Used ⚙**
-
-- Node.js
-- Express.js
-- MySQL
-- Swagger (OpenAPI)
-- Postman
-- GitHub
-
----
-
-# **External APIs Used 📌**
-
-### **OpenStreetMap Nominatim API**
-
-- Converts user addresses into usable location coordinates.
-- Supports distance-based logic for workshops or alerts.
-
-### **OpenRouteService API**
-
-- Calculates routes and distances (e.g., delivery of equipment).
-- Helps determine logistics cost and nearest facility routing.
-
----
-
-# **External Libraries and Packages 📦**
-
-### 📌 Database
-
-- **mysql2** — MySQL connection & queries
-
-### 📌 Utilities
-
-- **moment** — Date formatting
-- **geolib** — Distance calculation
-- **axios** — External API requests
-
-### 📌 Authentication & Security
-
-- **bcrypt** — Password hashing
-- **jsonwebtoken** — Token generation
-- **crypto** — Hashing operations
-
-### 📌 Mailing & PDFs
-
-- **nodemailer** — Sending emails
-- **puppeteer** — PDF generation
-
-### 📌 Testing / Development
-
-- **@faker-js/faker** — Fake data generation
-
-### 📌 Sessions
-
-- **express-session**
-- **cookie-parser**
-
----
-
-# **Installation**
-
-## **1️⃣ Clone the repository**
-
-```sh
-git clone https://github.com/username/healthpal.git
-```
+- **pg**: PostgreSQL database connection and management.
+- **bcrypt**: Password encryption and secure authentication.
+- **jsonwebtoken (jwt)**: Secure token generation for authentication and role-based access.
+- **express**: Server framework for routing and HTTP handling.
+- **cookie-parser**: Manage tokens via cookies.
+- **express-session**: Session management for user activities.
+- **node-cron**: Schedule notifications and automated tasks.
+- **axios**: HTTP requests to external APIs.
+- **moment**: Format dates and timestamps.
+- **puppeteer**: Generate PDF invoices for donations or case summaries.
+- **nodemailer**: Send email notifications for appointments, donations, and alerts.
+
+## Installation
+
+1. Clone the repository:
+   ```bash
+   git clone [https://github.com/username/HealthPal.git]
+   ```
