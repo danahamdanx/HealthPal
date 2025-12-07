@@ -50,3 +50,18 @@ export const updateEquipment = async (id, data) => {
       data.name,
       data.description,
       data.quantity,
+      data.category,
+      data.item_condition,
+      data.availability_status,
+      data.location,
+      data.contact_info,
+      id
+    ]
+  );
+  return rows[0];
+};
+
+export const deleteEquipment = async (id) => {
+  await db.query(`DELETE FROM equipmentinventory WHERE equipment_id=$1`, [id]);
+  return true;
+};
