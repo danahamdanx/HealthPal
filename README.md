@@ -140,7 +140,7 @@ Your all-in-one platform for healthcare management, connecting patients, doctors
    ```bash
    npm install
    ```
-   6. Run the application:
+4. Run the application:
    ```bash
       npx nodemon server.js
    ```
