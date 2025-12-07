@@ -130,5 +130,17 @@ Your all-in-one platform for healthcare management, connecting patients, doctors
 
 1. Clone the repository:
    ```bash
-   git clone [https://github.com/danahamdanx/HealthPal.git]
+   git clone [https://github.com/username/project-name.git]
+   ```
+2. Navigate to the project directory:
+   ```bash
+   cd healthpal
+   ```
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+   6. Run the application:
+   ```bash
+      npx nodemon server.js
    ```
