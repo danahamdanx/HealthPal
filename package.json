@@ -21,7 +21,9 @@
     "postman-to-openapi": "^1.7.3",
     "puppeteer": "^24.32.0",
     "rss-parser": "^3.13.0",
-    "swagger-ui-dist": "^5.30.1"
+    "swagger-ui-dist": "^5.30.1",
+    "swagger-ui-express": "^5.0.1",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"

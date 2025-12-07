@@ -1,0 +1,1494 @@
+openapi: 3.0.0
+info:
+  title: HealthPal API Documentation
+  description: API documentation for the HealthPal platform
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+    description: Local server
+
+tags:
+  - name: Auth
+    description: Endpoints for login, registration, token management, and password operations
+  - name: Users
+    description: Endpoints for managing all user accounts, roles, and permissions
+  - name: Patients
+    description: Endpoints for managing patient profiles, medical history, and appointments
+  - name: Doctors
+    description: Endpoints for managing doctor profiles, specialties, schedules, and availability
+  - name: NGOs
+    description: Endpoints for managing NGO profiles and their associated cases or donations
+  - name: Donors
+    description: Endpoints for managing donor profiles, donation history, and invoices
+  - name: Consultations
+    description: Endpoints for scheduling, updating, and retrieving medical consultations
+  - name: Cases
+    description: Endpoints for creating and managing NGO aid cases, targets, and verification
+  - name: Medical Requests
+    description: Endpoints for managing patient medical requests and approvals
+  - name: Equipment
+    description: Endpoints for managing medical equipment inventory, availability, and details
+  - name: Equipment Requests
+    description: Endpoints for creating, claiming, and tracking equipment requests
+  - name: Therapy Sessions
+    description: Endpoints for booking, updating, and tracking therapy sessions
+  - name: Health Articles
+    description: Endpoints for creating, retrieving, and managing health-related articles
+  - name: Workshops
+    description: Endpoints for managing health workshops, schedules, and participant registrations
+  - name: Health Alerts
+    description: Endpoints for sending and managing critical health alerts and notifications
+
+paths:
+  /api/auth/signup:
+    post:
+      summary: Signup a new user
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+      responses:
+        "200":
+          description: User signed up successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  userId:
+                    type: string
+                  token:
+                    type: string
+        "400":
+          description: Invalid input
+  /api/auth/login:
+    post:
+      summary: Login a user (doctor)
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  userId:
+                    type: string
+        "401":
+          description: Invalid email or password
+  /api/users:
+    get:
+      summary: Get all users
+      tags:
+        - Users
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    name:
+                      type: string
+                    email:
+                      type: string
+  /api/users/{id}:
+    get:
+      summary: Get user by ID
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  email:
+                    type: string
+    put:
+      summary: Update a user
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                created_at:
+                  type: string
+                  format: date-time
+      responses:
+        "200":
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  email:
+                    type: string
+        "400":
+          description: Invalid request
+    delete:
+      summary: Delete a user
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User deleted successfully
+        "404":
+          description: User not found
+  /api/patients:
+    get:
+      summary: Get all patients
+      tags:
+        - Patients
+      responses:
+        "200":
+          description: List of patients
+    post:
+      summary: Create patient
+      tags:
+        - Patients
+      responses:
+        "200":
+          description: patient Added
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+
+  /api/patients/{id}:
+    get:
+      summary: Get patient by ID
+      tags:
+        - Patients
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Patient details
+        "404":
+          description: Not found
+    put:
+      summary: Update patient
+      tags:
+        - Patients
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                date_of_birth:
+                  type: string
+                  format: date
+                gender:
+                  type: string
+                blood_type:
+                  type: string
+                address:
+                  type: string
+                medical_history:
+                  type: string
+      responses:
+        "200":
+          description: Patient updated
+    delete:
+      summary: Delete patient
+      tags:
+        - Patients
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Patient deleted
+  /api/doctors:
+    get:
+      summary: Get all doctors
+      tags:
+        - Doctors
+      responses:
+        "200":
+          description: List of doctors
+    post:
+      summary: Create doctor
+      tags:
+        - Doctors
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                specialty:
+                  type: string
+                phone:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                gender:
+                  type: string
+                qualification:
+                  type: string
+                license_number:
+                  type: string
+                experience_years:
+                  type: integer
+                hospital_name:
+                  type: string
+                address:
+                  type: string
+                availability:
+                  type: string
+      responses:
+        "200":
+          description: Doctor added
+
+  /api/doctors/{id}:
+    get:
+      summary: Get doctor by ID
+      tags:
+        - Doctors
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Doctor details
+        "404":
+          description: Not found
+    put:
+      summary: Update doctor
+      tags:
+        - Doctors
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                specialty:
+                  type: string
+                phone:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                gender:
+                  type: string
+                qualification:
+                  type: string
+                license_number:
+                  type: string
+                experience_years:
+                  type: integer
+                hospital_name:
+                  type: string
+                address:
+                  type: string
+                availability:
+                  type: string
+      responses:
+        "200":
+          description: Doctor updated
+    delete:
+      summary: Delete doctor
+      tags:
+        - Doctors
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Doctor deleted
+
+  /api/doctors/by-specialty:
+    get:
+      summary: Get doctors by specialty
+      tags:
+        - Doctors
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: specialty
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of doctors by specialty
+        "404":
+          description: No doctors found
+  /api/ngos:
+    get:
+      summary: Get all NGOs
+      tags:
+        - NGOs
+      responses:
+        "200":
+          description: List of NGOs
+    post:
+      summary: Add new NGO
+      tags:
+        - NGOs
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                registration_number:
+                  type: string
+                address:
+                  type: string
+                verified:
+                  type: boolean
+                phone:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                mission:
+                  type: string
+      responses:
+        "200":
+          description: NGO added
+
+  /api/ngos/{id}:
+    get:
+      summary: Get NGO by ID
+      tags:
+        - NGOs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: NGO details
+        "404":
+          description: Not found
+    put:
+      summary: Update NGO
+      tags:
+        - NGOs
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                notes:
+                  type: string
+                diagnosis:
+                  type: string
+                treatment:
+                  type: string
+      responses:
+        "200":
+          description: NGO updated
+    delete:
+      summary: Delete NGO
+      tags:
+        - NGOs
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: NGO deleted
+  /api/donors:
+    post:
+      summary: Create a donor
+      tags:
+        - Donors
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Donor created
+  /api/donors/{id}:
+    put:
+      summary: Update donor
+      tags:
+        - Donors
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                address:
+                  type: string
+      responses:
+        "200":
+          description: Donor updated
+  /api/donations:
+    post:
+      summary: Make a donation
+      tags:
+        - Donors
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                donor_id:
+                  type: integer
+                case_id:
+                  type: integer
+                amount:
+                  type: integer
+      responses:
+        "200":
+          description: Donation successful
+  /api/consultations:
+    post:
+      summary: Create a consultation
+      tags:
+        - Consultations
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                patient_id:
+                  type: integer
+                doctor_id:
+                  type: integer
+                scheduled_time:
+                  type: string
+                  format: date-time
+                consultation_type:
+                  type: string
+                translation_needed:
+                  type: boolean
+      responses:
+        "200":
+          description: Consultation created successfully
+        "400":
+          description: Invalid input
+    get:
+      summary: Get all consultations
+      tags:
+        - Consultations
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of consultations
+
+  /api/consultations/{id}:
+    get:
+      summary: Get consultation by ID
+      tags:
+        - Consultations
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Consultation details
+        "404":
+          description: Consultation not found
+    put:
+      summary: Update a consultation
+      tags:
+        - Consultations
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                notes:
+                  type: string
+                diagnosis:
+                  type: string
+                treatment:
+                  type: string
+      responses:
+        "200":
+          description: Consultation updated successfully
+    delete:
+      summary: Delete a consultation
+      tags:
+        - Consultations
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Consultation deleted
+        "404":
+          description: Consultation not found
+
+  /api/consultations/{id}/verify:
+    put:
+      summary: Verify a consultation
+      tags:
+        - Consultations
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Consultation verified
+  /api/cases:
+    post:
+      summary: Create a new case
+      tags:
+        - Cases
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                patient_id:
+                  type: integer
+                ngo_id:
+                  type: integer
+                title:
+                  type: string
+                description:
+                  type: string
+                target_amount:
+                  type: integer
+      responses:
+        "200":
+          description: Case created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  case_id:
+                    type: integer
+                  status:
+                    type: string
+        "400":
+          description: Invalid input
+    get:
+      summary: Get all cases
+      tags:
+        - Cases
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of cases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    case_id:
+                      type: integer
+                    title:
+                      type: string
+                    patient_id:
+                      type: integer
+        "401":
+          description: Unauthorized
+  /api/cases/{id}:
+    get:
+      summary: Get case by ID
+      tags:
+        - Cases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Case details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  case_id:
+                    type: integer
+                  title:
+                    type: string
+                  patient_id:
+                    type: integer
+        "404":
+          description: Case not found
+    put:
+      summary: Update a case
+      tags:
+        - Cases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                raised_amount:
+                  type: integer
+      responses:
+        "200":
+          description: Case updated successfully
+        "400":
+          description: Invalid input
+    delete:
+      summary: Delete a case
+      tags:
+        - Cases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Case deleted successfully
+        "404":
+          description: Case not found
+  /api/cases/{id}/verify:
+    put:
+      summary: Verify a case
+      tags:
+        - Cases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Case verified successfully
+        "404":
+          description: Case not found
+  /api/medical-request:
+    post:
+      summary: Create medical request
+      tags:
+        - Medical Requests
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                item_name:
+                  type: string
+                quantity:
+                  type: integer
+                urgency:
+                  type: string
+                notes:
+                  type: string
+      responses:
+        "200":
+          description: Medical request created
+
+  /api/medical-requests/{id}:
+    get:
+      summary: Get medical request by ID
+      tags:
+        - Medical Requests
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Medical request details
+        "404":
+          description: Not found
+
+  /api/medical-requests/{id}/claim:
+    post:
+      summary: NGO claims request
+      tags:
+        - Medical Requests
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Request claimed
+
+  /api/medical-requests/{id}/status:
+    put:
+      summary: Update medical request status
+      tags:
+        - Medical Requests
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+      responses:
+        "200":
+          description: Status updated
+  /api/equipment-Inventory:
+    post:
+      summary: Add equipment
+      tags:
+        - Equipment
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                quantity:
+                  type: integer
+                category:
+                  type: string
+                item_condition:
+                  type: string
+                availability_status:
+                  type: string
+                location:
+                  type: string
+                contact_info:
+                  type: string
+                added_by_user_id:
+                  type: integer
+                user_type:
+                  type: string
+      responses:
+        "200":
+          description: Equipment added
+    get:
+      summary: Get all equipment
+      tags:
+        - Equipment
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of equipment
+
+  /api/equipment-Inventory/{id}:
+    get:
+      summary: Get equipment by ID
+      tags:
+        - Equipment
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Equipment details
+    put:
+      summary: Update equipment
+      tags:
+        - Equipment
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+      responses:
+        "200":
+          description: Equipment updated
+    delete:
+      summary: Delete equipment
+      tags:
+        - Equipment
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Equipment deleted
+
+  /api/equipment-Inventory/category/{category}:
+    get:
+      summary: Get equipment by category
+      tags:
+        - Equipment
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: category
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of equipment by category
+  /api/equipment-Requests:
+    post:
+      summary: Create an equipment request
+      tags:
+        - Equipment Requests
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                equipment_id:
+                  type: integer
+                reason:
+                  type: string
+                duration_days:
+                  type: integer
+      responses:
+        "200":
+          description: Equipment request created
+        "400":
+          description: Invalid input
+
+  /api/equipment-requests/{id}/claim:
+    post:
+      summary: Claim an equipment request
+      tags:
+        - Equipment Requests
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description: Request claimed successfully
+        "404":
+          description: Request not found
+
+  /api/equipment-requests/{id}/status:
+    patch:
+      summary: Update equipment request status
+      tags:
+        - Equipment Requests
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+      responses:
+        "200":
+          description: Request status updated
+        "404":
+          description: Request not found
+  /api/therapy/doctors:
+    get:
+      summary: Get all therapy doctors
+      tags:
+        - Therapy Sessions
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of doctors
+
+  /api/therapy:
+    post:
+      summary: Create a therapy session
+      tags:
+        - Therapy Sessions
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                doctor_id:
+                  type: integer
+                scheduled_time:
+                  type: string
+                  format: date-time
+                duration_minutes:
+                  type: integer
+                session_focus:
+                  type: string
+                session_mode:
+                  type: string
+                recurring:
+                  type: string
+                initial_concerns:
+                  type: string
+      responses:
+        "200":
+          description: Therapy session created
+
+  /api/therapy/patient/sessions:
+    get:
+      summary: Get all patient therapy sessions
+      tags:
+        - Therapy Sessions
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of patient sessions
+
+  /api/therapy/doctor/sessions:
+    get:
+      summary: Get doctor therapy sessions
+      tags:
+        - Therapy Sessions
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of doctor sessions
+
+  /api/therapy/{id}/status:
+    patch:
+      summary: Update therapy session status
+      tags:
+        - Therapy Sessions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+      responses:
+        "200":
+          description: Therapy session status updated
+        "404":
+          description: Session not found
+
+  /api/therapy/{id}/notes:
+    patch:
+      summary: Update therapy session notes
+      tags:
+        - Therapy Sessions
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                session_notes:
+                  type: string
+                progress_notes:
+                  type: string
+      responses:
+        "200":
+          description: Therapy session notes updated
+        "404":
+          description: Session not found
+  /api/external_health_article/ar:
+    get:
+      summary: Get Arabic health articles
+      tags:
+        - Health Articles
+      responses:
+        "200":
+          description: List of Arabic articles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /api/external_health_article/en:
+    get:
+      summary: Get English health articles
+      tags:
+        - Health Articles
+      responses:
+        "200":
+          description: List of English articles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /api/health_alert/guides:
+    post:
+      summary: Add a health article
+      tags:
+        - Health Articles
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                category:
+                  type: string
+                content:
+                  type: string
+                language:
+                  type: string
+                image_url:
+                  type: string
+                  format: uri
+      responses:
+        "200":
+          description: Article added successfully
+  /api/workshops:
+    post:
+      summary: Create workshop
+      tags:
+        - Workshops
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                instructor:
+                  type: string
+                mode:
+                  type: string
+                location:
+                  type: string
+                start_time:
+                  type: string
+                  format: date-time
+                end_time:
+                  type: string
+                  format: date-time
+                max_attendees:
+                  type: integer
+      responses:
+        "200":
+          description: Workshop created
+    get:
+      summary: Get all workshops
+      tags:
+        - Workshops
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of workshops
+
+  /api/workshops/{id}/register:
+    post:
+      summary: Register for workshop
+      tags:
+        - Workshops
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Registration successful
+
+  /api/workshops/{id}/participants:
+    get:
+      summary: Get participants for workshop
+      tags:
+        - Workshops
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of participants
+
+  /api/my-workshops:
+    get:
+      summary: Get my registered workshops
+      tags:
+        - Workshops
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of my workshops
+  /api/health_alert/alerts:
+    post:
+      summary: Post a new alert
+      tags:
+        - Health Alerts
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                severity:
+                  type: string
+      responses:
+        "200":
+          description: Alert posted successfully
+        "400":
+          description: Invalid input
+
+    get:
+      summary: Get all alerts
+      tags:
+        - Health Alerts
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    title:
+                      type: string
+                    description:
+                      type: string
+                    severity:
+                      type: string
+                    created_at:
+                      type: string
+                      format: date-time
+components:
