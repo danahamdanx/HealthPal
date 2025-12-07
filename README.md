@@ -9,7 +9,7 @@
   <p align="center">
 Your all-in-one platform for healthcare management, connecting patients, doctors, NGOs, donors, and medical services.
     <br />
-    <a href="https://github.com/joodhamdallah/HealthPal/wiki/HealthPal-Wiki"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/danahamdanx/HealthPal/wiki"><strong>Explore the docs »</strong></a>
     <br />
     <br />
     <a href="https://drive.google.com/file/d/1JWYMJUP-ZTfPFAo5BEffEkdLJMWE_TDN/view?usp=sharing">View Demo</a>
