@@ -2,6 +2,12 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { db } from './src/config/db.js';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
+
+// Load Swagger YAML
+const swaggerDocument = YAML.load('./swagger.yaml');
+
 import userRoutes from './src/routes/users.routes.js';
 import patientRoutes from './src/routes/patients.routes.js';
 import doctorRoutes from './src/routes/doctors.routes.js';
@@ -24,20 +30,14 @@ import workshopRoutes from "./src/routes/healthWorkshops.routes.js";
 
 
 
-
-
-
-
-
-
-
-
-
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+// Swagger UI setup
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Routes
 app.use('/api/users', userRoutes);
@@ -59,6 +59,8 @@ app.use("/api/health_alert",healthEducationRoutes);
 app.use("/api/external_health_article", externalHealthRoutes);
 app.use("/api", workshopRoutes);
 
+
+ 
 
 
 
