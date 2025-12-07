@@ -1,4 +1,6 @@
 import { db } from "../config/db.js";
+import { sendEmail } from "../utils/mailer.js";
+
 
 const therapySpecialties = [
   "clinical psychology",
@@ -56,53 +58,48 @@ export const getTherapyDoctors = async (req, res) => {
 --------------------------------------------------- */
 export const createTherapySession = async (req, res) => {
   try {
-    if (!req.user.patient_id)
-      return res.status(403).json({ error: "Only patients can book sessions" });
+    if (!req.user.patient_id) return res.status(403).json({ error: "Only patients can book sessions" });
 
-    const {
-      doctor_id,
-      scheduled_time,
-      duration_minutes,
-      session_focus,
-      session_mode,
-      recurring,
-      initial_concerns
-    } = req.body;
+    const { doctor_id, scheduled_time, duration_minutes, session_focus, session_mode, recurring, initial_concerns } = req.body;
 
-    // Check if doctor exists
-    const [doc] = await db.query(`
-      SELECT specialty FROM Doctors WHERE doctor_id = ?
-    `, [doctor_id]);
+    const [doc] = await db.query(`SELECT name, email, specialty FROM Doctors WHERE doctor_id = ?`, [doctor_id]);
+    if (!doc.length) return res.status(404).json({ error: "Doctor not found" });
 
-    if (!doc.length)
-      return res.status(404).json({ error: "Doctor not found" });
-
-    const doctorSpecialty = doc[0].specialty.toLowerCase();
-
-    // Check if specialty is inside therapy accepted list
-    if (!therapySpecialties.includes(doctorSpecialty))
+    const doctor = doc[0];
+    if (!therapySpecialties.includes(doctor.specialty.toLowerCase()))
       return res.status(400).json({ error: "This doctor does not provide therapy services" });
 
-    // Insert session
-    const [result] = await db.query(`
-      INSERT INTO TherapySessions 
-      (patient_id, doctor_id, scheduled_time, duration_minutes, 
-       session_focus, session_mode, recurring, initial_concerns)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `, [
-      req.user.patient_id,
-      doctor_id,
-      scheduled_time,
-      duration_minutes || 60,
-      session_focus || null,
-      session_mode || "in_person",
-      recurring || "none",
-      initial_concerns || null
-    ]);
+    const [result] = await db.query(
+      `INSERT INTO TherapySessions 
+      (patient_id, doctor_id, scheduled_time, duration_minutes, session_focus, session_mode, recurring, initial_concerns)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [req.user.patient_id, doctor_id, scheduled_time, duration_minutes || 60, session_focus || null, session_mode || "in_person", recurring || "none", initial_concerns || null]
+    );
 
-    const [session] = await db.query(`
-      SELECT * FROM TherapySessions WHERE session_id = ?
-    `, [result.insertId]);
+    const [session] = await db.query(`SELECT * FROM TherapySessions WHERE session_id = ?`, [result.insertId]);
+
+    // Fetch patient info for email
+    const [patientRows] = await db.query(`SELECT name, email FROM Patients WHERE patient_id = ?`, [req.user.patient_id]);
+    const patient = patientRows[0];
+
+    // Send email notifications to patient and doctor
+    if (patient?.email) {
+      await sendEmail({
+        email: patient.email,
+        subject: "Therapy Session Scheduled",
+        message: `Hello ${patient.name}, your therapy session with Dr. ${doctor.name} is scheduled on ${scheduled_time}.`,
+        html: `<p>Hello <strong>${patient.name}</strong>,</p><p>Your therapy session with Dr. <strong>${doctor.name}</strong> is scheduled on <strong>${scheduled_time}</strong>.</p>`
+      });
+    }
+
+    if (doctor?.email) {
+      await sendEmail({
+        email: doctor.email,
+        subject: "New Therapy Session Booking",
+        message: `Dr. ${doctor.name}, a new therapy session has been booked by ${patient.name} on ${scheduled_time}.`,
+        html: `<p>Dr. <strong>${doctor.name}</strong>, a new therapy session has been booked by <strong>${patient.name}</strong> on <strong>${scheduled_time}</strong>.</p>`
+      });
+    }
 
     res.status(201).json(session[0]);
 
@@ -111,7 +108,6 @@ export const createTherapySession = async (req, res) => {
     res.status(500).json({ error: "Error creating therapy session" });
   }
 };
-
 
 /* ---------------------------------------------------
    Get all therapy sessions for a patient
@@ -169,36 +165,40 @@ export const updateTherapySessionStatus = async (req, res) => {
     const sessionId = req.params.id;
     const { status } = req.body;
 
-    const validStatuses = [
-      "approved",
-      "rejected",
-      "completed",
-      "canceled"
-    ];
+    const validStatuses = ["approved", "rejected", "completed", "canceled"];
+    if (!validStatuses.includes(status)) return res.status(400).json({ error: "Invalid status" });
 
-    if (!validStatuses.includes(status))
-      return res.status(400).json({ error: "Invalid status" });
+    const [sessions] = await db.query(`SELECT * FROM TherapySessions WHERE session_id = ?`, [sessionId]);
+    if (!sessions.length) return res.status(404).json({ error: "Session not found" });
+    const session = sessions[0];
 
-    await db.query(`
-      UPDATE TherapySessions 
-      SET status = ?
-      WHERE session_id = ?
-    `, [status, sessionId]);
+    await db.query(`UPDATE TherapySessions SET status = ? WHERE session_id = ?`, [status, sessionId]);
 
-    const [updated] = await db.query(`
-      SELECT * FROM TherapySessions WHERE session_id = ?
-    `, [sessionId]);
+    // Fetch patient & doctor emails
+    const [patientRows] = await db.query(`SELECT email, name FROM Patients WHERE patient_id = ?`, [session.patient_id]);
+    const [doctorRows] = await db.query(`SELECT email, name FROM Doctors WHERE doctor_id = ?`, [session.doctor_id]);
 
-    if (!updated.length)
-      return res.status(404).json({ error: "Session not found" });
+    const patient = patientRows[0];
+    const doctor = doctorRows[0];
 
-    res.json(updated[0]);
+    // Send email notification
+    if (patient?.email) {
+      await sendEmail({
+        email: patient.email,
+        subject: `Therapy Session ${status}`,
+        message: `Hello ${patient.name}, your therapy session scheduled on ${session.scheduled_time} is now ${status}.`,
+        html: `<p>Hello <strong>${patient.name}</strong>,</p><p>Your therapy session scheduled on <strong>${session.scheduled_time}</strong> is now <strong>${status}</strong>.</p>`
+      });
+    }
+
+    res.json({ ...session, status });
 
   } catch (err) {
     console.error("Error updating session status:", err);
     res.status(500).json({ error: "Error updating status" });
   }
 };
+
 
 
 export const updateTherapySessionNotes = async (req, res) => {
