@@ -6,7 +6,6 @@ import swaggerUi from 'swagger-ui-express';
 import YAML from 'yamljs';
 
 // Load Swagger YAML
-const swaggerDocument = YAML.load('./swagger.yaml');
 
 import userRoutes from './src/routes/users.routes.js';
 import patientRoutes from './src/routes/patients.routes.js';
@@ -37,7 +36,7 @@ app.use(cors());
 app.use(express.json());
 
 // Swagger UI setup
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+//app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Routes
 app.use('/api/users', userRoutes);

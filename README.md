@@ -12,7 +12,6 @@ Your all-in-one platform for healthcare management, connecting patients, doctors
     <a href="https://github.com/danahamdanx/HealthPal/wiki"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://drive.google.com/file/d/1JWYMJUP-ZTfPFAo5BEffEkdLJMWE_TDN/view?usp=sharing">View Demo</a>
   </p>
 </div>
 
@@ -142,5 +141,5 @@ Your all-in-one platform for healthcare management, connecting patients, doctors
    ```
 4. Run the application:
    ```bash
-      npx nodemon server.js
+   npx nodemon server.js
    ```
