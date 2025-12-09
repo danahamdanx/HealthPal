@@ -8,6 +8,7 @@ const router = express.Router();
 // ✅ GET all users (admin only)
 router.get('/', authenticate, authorizeRoles('admin'), ctrl.getAllUsers);
 
+router.get('/me', authenticate, ctrl.getMe);
 // ✅ GET single user (authenticated)
 router.get('/:id', authenticate, ctrl.getUserById);
 
