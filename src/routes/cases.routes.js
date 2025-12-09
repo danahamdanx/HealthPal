@@ -1,17 +1,41 @@
 import express from 'express';
 import { authenticate } from '../middleware/authenticate.js';
 import { authorizeRoles } from '../middleware/authorize.middleware.js';
-import { createCase, getAllCases, verifyCase } from '../controllers/cases.controller.js';
+import * as casesController from '../controllers/cases.controller.js';
 
 const router = express.Router();
 
-// Get all cases
-router.get('/', authenticate, getAllCases);
+// إنشاء حالة جديدة (أي مستخدم مسجّل دخول)
+router.post('/', authenticate, casesController.createCase);
 
-// Create a new case (Patient or Admin)
-router.post('/', authenticate, authorizeRoles('patient', 'admin'), createCase);
+// التحقق من حالة (NGO أو admin)
+router.patch(
+  '/verify/:case_id',
+  authenticate,
+  authorizeRoles('admin', 'ngo'),
+  casesController.verifyCase
+);
 
-// Verify a case (NGO assigned or Admin)
-router.put('/:case_id/verify', authenticate, authorizeRoles('ngo', 'admin'), verifyCase);
+// جلب جميع الحالات (أي مستخدم مسجّل دخول)
+router.get('/', authenticate, casesController.getAllCases);
+
+// جلب حالة واحدة حسب ID (أي مستخدم مسجّل دخول)
+router.get('/:case_id', authenticate, casesController.getCaseById);
+
+// تحديث حالة (admin أو NGO صاحب الحالة)
+router.put(
+  '/:case_id',
+  authenticate,
+  authorizeRoles('admin', 'ngo'),
+  casesController.updateCase
+);
+
+// حذف حالة (admin فقط)
+router.delete(
+  '/:case_id',
+  authenticate,
+  authorizeRoles('admin'),
+  casesController.deleteCase
+);
 
 export default router;
