@@ -1,4 +1,4 @@
-import { createDonationService } from '../services/donation.service';
+import { createDonationService } from '../services/donation.service.js';
 
 export const createDonation = async (req, res) => {
   try {

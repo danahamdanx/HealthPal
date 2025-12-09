@@ -1,6 +1,6 @@
-import { db } from '../src/config/db.js';
-import { generateDonationInvoice } from '../src/utils/pdfGenerator.js';
-import { sendEmail } from '../src/utils/mailer.js';
+import { db } from '../config/db.js';
+import { generateDonationInvoice } from '../utils/pdfGenerator.js';
+import { sendEmail } from '../utils/mailer.js';
 
 export const createDonationService = async ({ donor_id, case_id, amount }) => {
   if (!donor_id || !case_id || !amount) throw new Error('Missing required fields');
