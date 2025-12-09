@@ -23,5 +23,6 @@ router.put('/:id/status', authenticate, authorizeRoles('ngo','donor','admin'), c
 
 // Cancel claim (claimant or admin)
 router.post('/:id/cancel', authenticate, authorizeRoles('ngo','donor','admin'), ctrl.cancelClaim);
+router.delete('/:id',authenticate, authorizeRoles('patient','admin'), ctrl.deleteMedicalRequestController);
 
 export default router;

@@ -161,11 +161,42 @@ paths:
                   type: object
                   properties:
                     id:
-                      type: string
+                      type: integer
                     name:
                       type: string
                     email:
                       type: string
+                      format: email
+      security:
+        - BearerAuth: []
+    post:
+      summary: Create a new user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                password:
+                  type: string
+                role:
+                  type: string
+      responses:
+        "201":
+          description: User created successfully
+      security:
+        - BearerAuth: []
+
   /api/users/{id}:
     get:
       summary: Get user by ID
@@ -176,33 +207,22 @@ paths:
           in: path
           required: true
           schema:
-            type: string
+            type: integer
       responses:
         "200":
-          description: User details
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                  name:
-                    type: string
-                  email:
-                    type: string
+          description: User found
+        "404":
+          description: User not found
     put:
-      summary: Update a user
+      summary: Update user
       tags:
         - Users
-      security:
-        - BearerAuth: []
       parameters:
         - name: id
           in: path
           required: true
           schema:
-            type: string
+            type: integer
       requestBody:
         required: true
         content:
@@ -210,42 +230,82 @@ paths:
             schema:
               type: object
               properties:
-                created_at:
+                name:
                   type: string
-                  format: date-time
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
       responses:
         "200":
           description: User updated successfully
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  id:
-                    type: string
-                  name:
-                    type: string
-                  email:
-                    type: string
-        "400":
-          description: Invalid request
-    delete:
-      summary: Delete a user
-      tags:
-        - Users
+        "404":
+          description: User not found
       security:
         - BearerAuth: []
+    delete:
+      summary: Delete user
+      tags:
+        - Users
       parameters:
         - name: id
           in: path
           required: true
           schema:
+            type: integer
+      responses:
+        "204":
+          description: User deleted
+        "404":
+          description: User not found
+      security:
+        - BearerAuth: []
+
+  /api/users/search:
+    get:
+      summary: Search users by email or phone
+      tags:
+        - Users
+      parameters:
+        - name: identifier
+          in: query
+          required: false
+          schema:
             type: string
       responses:
         "200":
-          description: User deleted successfully
-        "404":
-          description: User not found
+          description: Search results
+    post:
+      summary: Search users by email
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: Search results
+      security:
+        - BearerAuth: []
+
+  /api/users/me:
+    get:
+      summary: Get my info
+      tags:
+        - Users
+      responses:
+        "200":
+          description: Current user info
+      security:
+        - BearerAuth: []
   /api/patients:
     get:
       summary: Get all patients

@@ -128,3 +128,24 @@ export const cancelClaimService = async (requestId, user) => {
   const [updatedReq] = await db.query('SELECT * FROM MedicalRequests WHERE request_id = ?', [requestId]);
   return updatedReq[0];
 };
+export const deleteMedicalRequestService = async (requestId, user) => {
+  // Fetch the request first
+  const [rows] = await db.query('SELECT * FROM MedicalRequests WHERE request_id = ?', [requestId]);
+  if (!rows.length) throw new Error('Medical request not found');
+
+  const request = rows[0];
+
+  // Authorization: only the patient who created it or admin
+  const patient_id = request.patient_id;
+  if (user.role !== 'admin' && user.user_id !== patient_id) {
+    throw new Error('Not authorized to delete this request');
+  }
+
+  // Delete associated claims first (optional, depends on your schema)
+  await db.query('DELETE FROM RequestClaims WHERE request_id = ?', [requestId]);
+
+  // Delete the medical request
+  await db.query('DELETE FROM MedicalRequests WHERE request_id = ?', [requestId]);
+
+  return { message: 'Medical request deleted successfully', request_id: requestId };
+};
