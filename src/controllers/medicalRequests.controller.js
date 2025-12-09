@@ -66,3 +66,12 @@ export const cancelClaim = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+export const deleteMedicalRequestController = async (req, res) => {
+  try {
+    const result = await medicalRequestService.deleteMedicalRequestService(req.params.id, req.user);
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
