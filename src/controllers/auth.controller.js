@@ -3,7 +3,7 @@ import { db } from '../config/db.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
-import { sendEmail } from '../utils/sendEmail.js';
+import { sendEmail } from '../utils/mailer.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
@@ -210,3 +210,42 @@ If you did not request this, ignore this email.
 };
 
 
+// --- RESET PASSWORD ---
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res.status(400).json({ error: 'Token and new password are required' });
+    }
+
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+
+    const [users] = await db.query(
+      `SELECT * FROM Users
+       WHERE reset_token = ? AND reset_token_expires > NOW()`,
+      [hashedToken]
+    );
+
+    if (!users.length) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    const password_hash = await bcrypt.hash(newPassword, 10);
+
+    await db.query(
+      `UPDATE Users
+       SET password_hash = ?, reset_token = NULL, reset_token_expires = NULL
+       WHERE user_id = ?`,
+      [password_hash, users[0].user_id]
+    );
+
+    res.json({ message: 'Password reset successful' });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error during password reset' });
+  }
+};
