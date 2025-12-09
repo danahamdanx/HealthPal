@@ -14,6 +14,9 @@ router.get('/:id', authenticate, ctrl.getUserById);
 // ✅ POST new user (admin only)
 router.post('/', authenticate, authorizeRoles('admin'), ctrl.createUser);
 
+router.post('/search', authenticate, authorizeRoles('admin'), ctrl.searchUserByEmailOrPhone); // البحث بالبريد/الهاتف
+
+
 // ✅ PUT update user (admin only)
 router.put('/:id', authenticate, authorizeRoles('admin'), ctrl.updateUser);
 
