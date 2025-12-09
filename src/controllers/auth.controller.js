@@ -2,6 +2,8 @@
 import { db } from '../config/db.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import { sendEmail } from '../utils/mailer.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretkey';
 
@@ -122,5 +124,128 @@ export const login = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error during login' });
+  }
+};
+
+// --- LOGOUT ---
+export const logout = async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(400).json({ error: 'No token provided' });
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    await db.query(
+      `INSERT INTO blacklisted_tokens (token, expires_at)
+       VALUES (?, FROM_UNIXTIME(?))`,
+      [token, decoded.exp]
+    );
+
+    res.json({ message: 'Logout successful' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error during logout' });
+  }
+};
+
+// --- FORGOT PASSWORD ---
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    const [users] = await db.query('SELECT * FROM Users WHERE email = ?', [email]);
+
+    // Prevent email enumeration
+    if (!users.length) {
+      return res.json({ message: 'If the email exists, a reset link has been sent' });
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(resetToken)
+      .digest('hex');
+
+    await db.query(
+      `UPDATE Users 
+       SET reset_token = ?, reset_token_expires = DATE_ADD(NOW(), INTERVAL 15 MINUTE)
+       WHERE user_id = ?`,
+      [hashedToken, users[0].user_id]
+    );
+
+    const resetLink = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
+
+    await sendEmail({
+      email: users[0].email,
+      subject: 'Reset Your Password',
+      message: `
+You requested a password reset.
+
+Use the link below to reset your password:
+${resetLink}
+
+This link will expire in 15 minutes.
+If you did not request this, ignore this email.
+      `,
+      html: `
+        <h2>Password Reset</h2>
+        <p>You requested a password reset.</p>
+        <p>
+          <a href="${resetLink}" style="color:#2563eb;font-weight:bold;">
+            Reset Password
+          </a>
+        </p>
+        <p>This link expires in <b>15 minutes</b>.</p>
+        <p>If you didn’t request this, simply ignore this email.</p>
+      `
+    });
+
+    res.json({ message: 'If the email exists, a reset link has been sent' });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error during forgot password' });
+  }
+};
+
+
+// --- RESET PASSWORD ---
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    if (!token || !newPassword) {
+      return res.status(400).json({ error: 'Token and new password are required' });
+    }
+
+    const hashedToken = crypto
+      .createHash('sha256')
+      .update(token)
+      .digest('hex');
+
+    const [users] = await db.query(
+      `SELECT * FROM Users
+       WHERE reset_token = ? AND reset_token_expires > NOW()`,
+      [hashedToken]
+    );
+
+    if (!users.length) {
+      return res.status(400).json({ error: 'Invalid or expired reset token' });
+    }
+
+    const password_hash = await bcrypt.hash(newPassword, 10);
+
+    await db.query(
+      `UPDATE Users
+       SET password_hash = ?, reset_token = NULL, reset_token_expires = NULL
+       WHERE user_id = ?`,
+      [password_hash, users[0].user_id]
+    );
+
+    res.json({ message: 'Password reset successful' });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error during password reset' });
   }
 };
