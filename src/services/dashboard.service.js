@@ -163,9 +163,25 @@ LIMIT 10;
 // ================================
 // 🏢 NGO DASHBOARD
 // ================================
-export const getNgoDashboardData = async (ngoId) => {
+export const getNgoDashboardData = async (userId) => {
+  // بيانات المستخدم
+  const [userRows] = await db.query(
+    "SELECT user_id, name, email, role, created_at FROM USERS WHERE user_id = ?",
+    [userId]
+  );
+  const user = userRows[0];
+
+  // نجيب ngo_id
+  const [ngoRows] = await db.query(
+    "SELECT * FROM NGOS WHERE user_id = ?",
+    [userId]
+  );
+  const ngo = ngoRows[0];
+  const ngoId = ngo?.ngo_id;
+
+  // إجمالي الحالات
   const [[casesCount]] = await db.query(
-   ` SELECT COUNT(*) AS total FROM CASES WHERE ngo_id = ?`,
+    "SELECT COUNT(*) AS total FROM CASES WHERE ngo_id = ?",
     [ngoId]
   );
 
@@ -178,21 +194,23 @@ export const getNgoDashboardData = async (ngoId) => {
   );
 
   const [[activeCases]] = await db.query(
-    `SELECT COUNT(*) AS total FROM CASES WHERE ngo_id = ? AND status = 'active'`,
+    "SELECT COUNT(*) AS total FROM CASES WHERE ngo_id = ? AND status = 'active'",
     [ngoId]
   );
 
   const [[closedCases]] = await db.query(
-    `SELECT COUNT(*) AS total FROM CASES WHERE ngo_id = ? AND status = 'closed'`,
+    "SELECT COUNT(*) AS total FROM CASES WHERE ngo_id = ? AND status = 'closed'",
     [ngoId]
   );
 
   const [[claimsCount]] = await db.query(
-    `SELECT COUNT(*) AS total FROM REQUESTCLAIMS WHERE ngo_id = ?`,
+    "SELECT COUNT(*) AS total FROM REQUESTCLAIMS WHERE ngo_id = ?",
     [ngoId]
   );
 
   return {
+    user,
+    ngo,
     casesCount: casesCount.total || 0,
     totalDonations: totalDonations.total || 0,
     activeCases: activeCases.total || 0,
@@ -204,19 +222,34 @@ export const getNgoDashboardData = async (ngoId) => {
 // ================================
 // 💸 DONOR DASHBOARD
 // ================================
-export const getDonorDashboardData = async (donorId) => {
+export const getDonorDashboardData = async (userId) => {
+  // بيانات المستخدم
+  const [userRows] = await db.query(
+    "SELECT user_id, name, email, role, created_at FROM USERS WHERE user_id = ?",
+    [userId]
+  );
+  const user = userRows[0];
+
+  // نجيب donor_id
+  const [donorRows] = await db.query(
+    "SELECT * FROM DONORS WHERE user_id = ?",
+    [userId]
+  );
+  const donor = donorRows[0];
+  const donorId = donor?.donor_id;
+
   const [[donationCount]] = await db.query(
-   ` SELECT COUNT(*) AS total FROM DONATIONS WHERE donor_id = ?`,
+    "SELECT COUNT(*) AS total FROM DONATIONS WHERE donor_id = ?",
     [donorId]
   );
 
   const [[totalDonated]] = await db.query(
-    `SELECT SUM(amount) AS total FROM DONATIONS WHERE donor_id = ?`,
+    "SELECT SUM(amount) AS total FROM DONATIONS WHERE donor_id = ?",
     [donorId]
   );
 
   const [[supportedCases]] = await db.query(
-    `SELECT COUNT(DISTINCT case_id) AS total FROM DONATIONS WHERE donor_id = ?`,
+    "SELECT COUNT(DISTINCT case_id) AS total FROM DONATIONS WHERE donor_id = ?",
     [donorId]
   );
 
@@ -231,6 +264,8 @@ export const getDonorDashboardData = async (donorId) => {
   );
 
   return {
+    user,
+    donor,
     donationCount: donationCount.total || 0,
     totalDonated: totalDonated.total || 0,
     supportedCases: supportedCases.total || 0,

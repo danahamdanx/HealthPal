@@ -1,4 +1,6 @@
 import express from "express";
+import { authenticate } from '../middleware/authenticate.js';
+import { authorizeRoles } from '../middleware/authorize.middleware.js';
 import {
   getPatientDashboard,
   getDoctorDashboard,
@@ -8,9 +10,10 @@ import {
 
 const router = express.Router();
 
-router.get("/patient", getPatientDashboard);
-router.get("/doctor", getDoctorDashboard);
-router.get("/ngo/:ngoId", getNgoDashboard);
-router.get("/donor/:donorId", getDonorDashboard);
+router.get("/patient",authenticate ,authorizeRoles('patient'),getPatientDashboard);
+router.get("/doctor",authenticate ,authorizeRoles('doctor'),getDoctorDashboard);
+router.get("/ngo",authenticate,authorizeRoles('ngo'), getNgoDashboard);
+router.get("/donor",authenticate,authorizeRoles('donor'), getDonorDashboard);
+
 
 export default router;

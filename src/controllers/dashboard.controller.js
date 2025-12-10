@@ -27,7 +27,7 @@ export const getDoctorDashboard = async (req, res) => {
 
 export const getNgoDashboard = async (req, res) => {
   try {
-    const data = await getNgoDashboardData(req.params.ngoId);
+    const data = await getNgoDashboardData(req.user.user_id);
     res.json(data);
   } catch (err) {
     console.error("NGO Dashboard Error:", err);
@@ -37,7 +37,7 @@ export const getNgoDashboard = async (req, res) => {
 
 export const getDonorDashboard = async (req, res) => {
   try {
-    const data = await getDonorDashboardData(req.params.donorId);
+    const data = await getDonorDashboardData(req.user.user_id);
     res.json(data);
   } catch (err) {
     console.error("Donor Dashboard Error:", err);
