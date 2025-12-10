@@ -1,0 +1,19 @@
+// src/routes/cdcAlerts.routes.js
+import { Router } from 'express';
+import {
+  getLiveCdcAlerts,
+  syncCdcAlerts,
+} from '../controllers/cdcAlerts.controller.js';
+// لو عندك auth:
+// import { authMiddleware } from '../middleware/auth.middleware.js';
+// import { allowRoles } from '../middleware/role.middleware.js';
+
+const router = Router();
+
+// يرجع Alerts مباشرة من CDC بدون تخزين
+router.get('/cdc/live', getLiveCdcAlerts);
+
+// يجلب من CDC + يخزن في PUBLICHEALTHALERTS
+router.post('/cdc/sync', syncCdcAlerts);
+
+export default router;
