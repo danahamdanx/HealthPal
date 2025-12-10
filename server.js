@@ -25,7 +25,7 @@ import healthEducationRoutes from "./src/routes/healthEducation.routes.js";
 import externalHealthRoutes from "./src/routes/externalHealth.routes.js";
 import workshopRoutes from "./src/routes/healthWorkshops.routes.js";
 import dashboardRoutes from './src/routes/dashboard.routes.js';
-
+import ngoReportsRoutes from './src/routes/ngoReports.routes.js';
 
 
 
@@ -59,7 +59,7 @@ app.use("/api/health_alert",healthEducationRoutes);
 app.use("/api/external_health_article", externalHealthRoutes);
 app.use("/api", workshopRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-
+app.use('/api/ngos', ngoReportsRoutes);
 
  
 
