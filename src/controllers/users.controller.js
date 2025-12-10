@@ -20,7 +20,7 @@ export const searchUserByEmailOrPhone = async (req, res) => {
     return res.status(400).json({ error: 'Please provide email or phone to search' });
   }
 
-  const users = await searchUsers({ email, phone });
+  const users = await userService.searchUsers({ email, phone });
   res.json(users);
 };
 
