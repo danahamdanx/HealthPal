@@ -108,7 +108,7 @@ export const getDoctorDashboardData = async (userId) => {
 
   // نجيب doctor_id من جدول DOCTORS
   const [doctorRows] = await db.query(
-    'SELECT * FROM DOCTORS WHERE user_id = ?',
+    'SELECT * FROM doctors WHERE user_id = ?',
     [userId]
   );
   const doctor = doctorRows[0];
@@ -146,12 +146,19 @@ export const getDoctorDashboardData = async (userId) => {
 
   // 3) آخر المرضى اللي تعامل معهم الدكتور (من الاستشارات وجلسات العلاج)
   const [recentPatients] = await db.query(
-    `SELECT DISTINCT p.patient_id, p.name, p.email, p.phone
-     FROM PATIENTS p
-     JOIN CONSULTATIONS c ON c.patient_id = p.patient_id
-     WHERE c.doctor_id = ?
-     ORDER BY c.scheduled_time DESC
-     LIMIT 10`,
+    `SELECT 
+    p.patient_id,
+    p.name,
+    p.email,
+    p.phone,
+    MAX(c.scheduled_time) AS last_consultation
+FROM PATIENTS p
+JOIN CONSULTATIONS c ON c.patient_id = p.patient_id
+WHERE c.doctor_id = ?
+GROUP BY p.patient_id, p.name, p.email, p.phone
+ORDER BY last_consultation DESC
+LIMIT 10;
+`,
     [doctorId]
   );
 
