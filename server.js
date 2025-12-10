@@ -26,6 +26,8 @@ import externalHealthRoutes from "./src/routes/externalHealth.routes.js";
 import workshopRoutes from "./src/routes/healthWorkshops.routes.js";
 import dashboardRoutes from './src/routes/dashboard.routes.js';
 import ngoReportsRoutes from './src/routes/ngoReports.routes.js';
+import medicalRequestPriorityRoutes from './src/routes/medicalRequestPriority.routes.js';
+import cdcAlertsRoutes from './src/routes/cdcAlerts.routes.js';
 
 
 
@@ -60,7 +62,8 @@ app.use("/api/external_health_article", externalHealthRoutes);
 app.use("/api", workshopRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/ngos', ngoReportsRoutes);
-
+app.use('/api/medical-requests', medicalRequestPriorityRoutes);
+app.use('/api/public-health-alerts', cdcAlertsRoutes);
  
 
 
