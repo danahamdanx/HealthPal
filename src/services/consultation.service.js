@@ -1,5 +1,42 @@
-import { db } from '../config/db.js';  // <- لاحظ ../src/ لأنها خارج src
+import { db } from '../config/db.js';
 import { sendEmail } from '../utils/mailer.js';
+
+// ⭐ دالة داخلية: تجيب مواعيد متضاربة لنفس الدكتور أو المريض
+const getOverlappingConsultations = async ({ patient_id, doctor_id, scheduled_time, excludeId = null }) => {
+  if (!patient_id || !doctor_id || !scheduled_time) return [];
+
+  let query = `
+    SELECT *
+    FROM Consultations
+    WHERE (doctor_id = ? OR patient_id = ?)
+      AND scheduled_time = ?
+      AND status IN ('pending', 'scheduled')
+  `;
+  const params = [doctor_id, patient_id, scheduled_time];
+
+  if (excludeId) {
+    query += ' AND consultation_id <> ?';
+    params.push(excludeId);
+  }
+
+  const [rows] = await db.query(query, params);
+  return rows;
+};
+
+// ⭐ دالة عامة نستخدمها في الـ API للفحص بدون إنشاء
+export const checkConsultationConflict = async (data) => {
+  const { patient_id, doctor_id, scheduled_time, excludeId = null } = data;
+
+  if (!patient_id || !doctor_id || !scheduled_time) {
+    throw new Error('patient_id, doctor_id, and scheduled_time are required');
+  }
+
+  const conflicts = await getOverlappingConsultations({ patient_id, doctor_id, scheduled_time, excludeId });
+  return {
+    conflict: conflicts.length > 0,
+    conflicts,
+  };
+};
 
 // Get all consultations
 export const getAllConsultations = async (user) => {
@@ -34,12 +71,18 @@ export const getConsultationById = async (id, user) => {
   return consultation;
 };
 
-// Create consultation
+// Create consultation (مع فحص تضارب المواعيد)
 export const createConsultation = async (data) => {
   const { patient_id, doctor_id, scheduled_time, consultation_type, translation_needed } = data;
 
   if (!patient_id || !doctor_id || !scheduled_time || !consultation_type || translation_needed === undefined) {
     throw new Error('Required fields missing');
+  }
+
+  // 🔥 فحص تضارب المواعيد قبل الإنشاء
+  const { conflict, conflicts } = await checkConsultationConflict({ patient_id, doctor_id, scheduled_time });
+  if (conflict) {
+    throw new Error('Consultation time conflict with another appointment');
   }
 
   const status = 'pending';
@@ -66,7 +109,7 @@ export const createConsultation = async (data) => {
     await sendEmail({
       email: patient.email,
       subject: 'Appointment Pending',
-      message: `Hello ${patient.name}, your appointment is pending for ${scheduled_time}.`,
+      message:` Hello ${patient.name}, your appointment is pending for ${scheduled_time}.`,
       html: `<p>Hello ${patient.name},</p><p>Your appointment is pending for <strong>${scheduled_time}</strong>.</p>`
     });
   }
@@ -74,7 +117,7 @@ export const createConsultation = async (data) => {
   return newConsultation[0];
 };
 
-// Update consultation
+// Update consultation (مع فحص تضارب المواعيد لو تغيّر الوقت)
 export const updateConsultation = async (id, user, updates) => {
   const [rows] = await db.query('SELECT * FROM Consultations WHERE consultation_id = ?', [id]);
   if (!rows.length) throw new Error('Consultation not found');
@@ -91,6 +134,23 @@ export const updateConsultation = async (id, user, updates) => {
     allowedFields.push(...Object.keys(updates));
   } else {
     throw new Error('Not authorized');
+  }
+
+  // 🔥 لو في تحديث على وقت الموعد → نفحص تضارب قبل التحديث
+  let newScheduledTime = consultation.scheduled_time;
+  if (updates.scheduled_time !== undefined) {
+    newScheduledTime = updates.scheduled_time;
+
+    const { conflict } = await checkConsultationConflict({
+      patient_id: consultation.patient_id,
+      doctor_id: consultation.doctor_id,
+      scheduled_time: newScheduledTime,
+      excludeId: id,
+    });
+
+    if (conflict) {
+      throw new Error('Consultation time conflict with another appointment');
+    }
   }
 
   const setFields = [];
@@ -119,15 +179,12 @@ export const updateConsultationStatus = async (id, status) => {
   if (!allowedStatus.includes(status))
     throw new Error(`Invalid status. Allowed: ${allowedStatus.join(', ')}`);
 
-  // تحديث الحالة
   const [result] = await db.query('UPDATE Consultations SET status = ? WHERE consultation_id = ?', [status, id]);
   if (result.affectedRows === 0) throw new Error('Consultation not found');
 
-  // جلب البيانات المحدثة
   const [updatedRows] = await db.query('SELECT * FROM Consultations WHERE consultation_id = ?', [id]);
   const updatedConsultation = updatedRows[0];
 
-  // إرسال البريد الإلكتروني للمريض
   const [patientRows] = await db.query('SELECT name, email FROM Patients WHERE patient_id = ?', [updatedConsultation.patient_id]);
   const patient = patientRows[0];
 
@@ -135,7 +192,7 @@ export const updateConsultationStatus = async (id, status) => {
     await sendEmail({
       email: patient.email,
       subject: 'Consultation Status Updated',
-      message: `Hello ${patient.name},\n\nThe status of your consultation has been updated to: ${status}.\nScheduled Time: ${updatedConsultation.scheduled_time}\n\nThank you!`,
+      message:` Hello ${patient.name},\n\nThe status of your consultation has been updated to: ${status}.\nScheduled Time: ${updatedConsultation.scheduled_time}\n\nThank you!`,
       html: `<p>Hello ${patient.name},</p>
              <p>The status of your consultation has been updated.</p>
              <p><strong>Status:</strong> ${status}</p>

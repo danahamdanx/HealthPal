@@ -12,13 +12,18 @@ router.get('/', authenticate, ctrl.getAllConsultations);
 // ✅ Get one consultation
 router.get('/:id', authenticate, ctrl.getConsultationById);
 
-// ✅ Create a consultation (doctor or admin)
+// ✅ Create a consultation (doctor or admin or patient)
 router.post('/', authenticate, authorizeRoles('admin','patient'), ctrl.createConsultation);
 
-// ✅ Update consultation (doctor or admin)
-router.put('/:id', authenticate, authorizeRoles('doctor', 'admin','patient'), ctrl.updateConsultation);
-router.patch('/:id/status', authenticate, authorizeRoles('doctor', 'admin'), ctrl.updateConsultationStatus);
+// ⭐ جديد: فحص تضارب المواعيد قبل الحجز
+// body: { patient_id, doctor_id, scheduled_time }
+router.post('/check-conflict', authenticate, authorizeRoles('admin','doctor','patient'), ctrl.checkConsultationConflict);
 
+// ✅ Update consultation (doctor or admin or patient)
+router.put('/:id', authenticate, authorizeRoles('doctor', 'admin','patient'), ctrl.updateConsultation);
+
+// ✅ Update only status
+router.patch('/:id/status', authenticate, authorizeRoles('doctor', 'admin'), ctrl.updateConsultationStatus);
 
 // ✅ Delete consultation (admin only)
 router.delete('/:id', authenticate, authorizeRoles('admin'), ctrl.deleteConsultation);
