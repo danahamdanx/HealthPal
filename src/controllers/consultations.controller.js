@@ -53,3 +53,14 @@ export const deleteConsultation = async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 };
+
+// ⭐ جديد: فحص تضارب المواعيد بدون إنشاء
+// POST /consultations/check-conflict
+export const checkConsultationConflict = async (req, res) => {
+  try {
+    const result = await consultationService.checkConsultationConflict(req.body);
+    res.json(result); // { conflict: true/false, conflicts: [...] }
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
