@@ -42,20 +42,16 @@ tags:
 paths:
   /api/auth/signup:
     post:
-      summary: User signup
       tags:
         - Auth
+      summary: Sign up
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - name
-                - email
-                - password
-                - role
+              required: [name, email, password, role]
               properties:
                 name:
                   type: string
@@ -68,117 +64,128 @@ paths:
                   type: string
                 role:
                   type: string
+            example:
+              name: rossan daoud
+              email: rossan.a.daou.d.k.yl42+qeuorkvo@gmail.com
+              phone: "0568336420"
+              password: password123
+              role: donor
       responses:
         "201":
-          description: Signup successful
-        "400":
-          description: Invalid input
+          description: User registered successfully
 
   /api/auth/login:
     post:
-      summary: User login
       tags:
         - Auth
+      summary: Login
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - email
-                - password
+              required: [email, password]
               properties:
                 email:
                   type: string
                   format: email
                 password:
                   type: string
+            example:
+              email: emily.carter@healthsystem.com
+              password: doc123
       responses:
         "200":
           description: Login successful
-        "401":
-          description: Invalid credentials
 
   /api/auth/forgot-password:
     post:
-      summary: Forgot password
       tags:
         - Auth
+      summary: Forgot password
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - email
+              required: [email]
               properties:
                 email:
                   type: string
                   format: email
+            example:
+              email: s12010329@stu.najah.edu
       responses:
         "200":
           description: Password reset email sent
 
   /api/auth/reset-password:
     post:
-      summary: Reset password
       tags:
         - Auth
+      summary: Reset password
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
-              required:
-                - token
-                - newPassword
+              required: [token, newPassword]
               properties:
                 token:
                   type: string
                 newPassword:
                   type: string
+            example:
+              token: 30738b9412d9354f48e0ce9baef6fc3bd54b7ae426f941c2cfb8db1dca0c9cef
+              newPassword: danaHamdan12345
       responses:
         "200":
-          description: Password reset successful
-        "400":
-          description: Invalid or expired token
-  /api/users:
-    get:
-      summary: Get all users
+          description: Password reset successfully
+
+  /api/auth/logout:
+    post:
       tags:
-        - Users
-      responses:
-        "200":
-          description: List of users
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    name:
-                      type: string
-                    email:
-                      type: string
-                      format: email
+        - Auth
+      summary: Logout
       security:
         - BearerAuth: []
-    post:
-      summary: Create a new user
+      responses:
+        "204":
+          description: Logged out successfully
+  /api/users:
+    get:
       tags:
         - Users
+      summary: Get users
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: email
+          in: query
+          required: false
+          schema:
+            type: string
+            format: email
+      responses:
+        "200":
+          description: List of users returned
+
+    post:
+      tags:
+        - Users
+      summary: Create user
+      security:
+        - BearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
               type: object
+              required: [name, email, password]
               properties:
                 name:
                   type: string
@@ -191,17 +198,21 @@ paths:
                   type: string
                 role:
                   type: string
+            example:
+              name: rossan daoud
+              email: rossan.a.daou.d.k.yl42+qeuorkvo@gmail.com
+              phone: "0568336420"
+              password: password123
+              role: donor
       responses:
         "201":
           description: User created successfully
-      security:
-        - BearerAuth: []
 
   /api/users/{id}:
     get:
-      summary: Get user by ID
       tags:
         - Users
+      summary: Get user by ID
       parameters:
         - name: id
           in: path
@@ -210,13 +221,14 @@ paths:
             type: integer
       responses:
         "200":
-          description: User found
-        "404":
-          description: User not found
+          description: User details returned
+
     put:
-      summary: Update user
       tags:
         - Users
+      summary: Update user
+      security:
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -232,22 +244,20 @@ paths:
               properties:
                 name:
                   type: string
-                email:
-                  type: string
-                  format: email
                 phone:
+                  type: string
+                role:
                   type: string
       responses:
         "200":
           description: User updated successfully
-        "404":
-          description: User not found
-      security:
-        - BearerAuth: []
+
     delete:
-      summary: Delete user
       tags:
         - Users
+      summary: Delete user
+      security:
+        - BearerAuth: []
       parameters:
         - name: id
           in: path
@@ -256,30 +266,14 @@ paths:
             type: integer
       responses:
         "204":
-          description: User deleted
-        "404":
-          description: User not found
+          description: User deleted successfully
+  /api/users/search:
+    post:
+      tags:
+        - Users
+      summary: Search user by email or phone
       security:
         - BearerAuth: []
-
-  /api/users/search:
-    get:
-      summary: Search users by email or phone
-      tags:
-        - Users
-      parameters:
-        - name: identifier
-          in: query
-          required: false
-          schema:
-            type: string
-      responses:
-        "200":
-          description: Search results
-    post:
-      summary: Search users by email
-      tags:
-        - Users
       requestBody:
         required: true
         content:
@@ -290,27 +284,28 @@ paths:
                 email:
                   type: string
                   format: email
+            example:
+              email: s12010329@stu.najah.edu
       responses:
         "200":
-          description: Search results
-      security:
-        - BearerAuth: []
-
+          description: Search results returned
   /api/users/me:
     get:
-      summary: Get my info
       tags:
         - Users
-      responses:
-        "200":
-          description: Current user info
+      summary: Get current user info
       security:
         - BearerAuth: []
+      responses:
+        "200":
+          description: Current user information returned
+
   /api/patients:
     get:
-      summary: Get all patients
       tags:
         - Patients
+      summary: Get all patients
+
       responses:
         "200":
           description: List of patients
@@ -639,9 +634,9 @@ paths:
           description: NGO deleted
   /api/donors:
     post:
-      summary: Create a donor
       tags:
         - Donors
+      summary: Create donor
       security:
         - BearerAuth: []
       requestBody:
@@ -650,14 +645,20 @@ paths:
           application/json:
             schema:
               type: object
+              properties:
+                address:
+                  type: string
+            example:
+              address: 123 King Fahd Street, Riyadh, Saudi Arabia
       responses:
-        "200":
-          description: Donor created
+        "201":
+          description: Donor created successfully
+
   /api/donors/{id}:
     put:
-      summary: Update donor
       tags:
         - Donors
+      summary: Update donor
       security:
         - BearerAuth: []
       parameters:
@@ -675,14 +676,33 @@ paths:
               properties:
                 address:
                   type: string
+            example:
+              address: 123 King Fahd Street, Riyadh, Saudi Arabia
       responses:
         "200":
-          description: Donor updated
-  /api/donations:
-    post:
-      summary: Make a donation
+          description: Donor updated successfully
+
+    delete:
       tags:
         - Donors
+      summary: Delete donor
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Donor deleted successfully
+
+  /api/donations:
+    post:
+      tags:
+        - Donors
+      summary: Make donation
       security:
         - BearerAuth: []
       requestBody:
@@ -691,6 +711,10 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - donor_id
+                - case_id
+                - amount
               properties:
                 donor_id:
                   type: integer
@@ -698,9 +722,13 @@ paths:
                   type: integer
                 amount:
                   type: integer
+            example:
+              donor_id: 1
+              case_id: 1
+              amount: 3000
       responses:
-        "200":
-          description: Donation successful
+        "201":
+          description: Donation created successfully
   /api/consultations:
     post:
       summary: Create a consultation
@@ -975,11 +1003,11 @@ paths:
           description: Case verified successfully
         "404":
           description: Case not found
-  /api/medical-request:
+  /api/medical-requests:
     post:
-      summary: Create medical request
       tags:
         - Medical Requests
+      summary: Create medical request
       security:
         - BearerAuth: []
       requestBody:
@@ -988,6 +1016,10 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - item_name
+                - quantity
+                - urgency
               properties:
                 item_name:
                   type: string
@@ -997,13 +1029,34 @@ paths:
                   type: string
                 notes:
                   type: string
+            example:
+              item_name: Insulin Pens
+              quantity: 3
+              urgency: critical
+              notes: Local pharmacy out of stock
       responses:
-        "200":
-          description: Medical request created
+        "201":
+          description: Medical request created successfully
 
   /api/medical-requests/{id}:
     get:
+      tags:
+        - Medical Requests
       summary: Get medical request by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Medical request details returned
+
+    delete:
+      summary: Delete medical request
       tags:
         - Medical Requests
       security:
@@ -1015,16 +1068,14 @@ paths:
           schema:
             type: integer
       responses:
-        "200":
-          description: Medical request details
-        "404":
-          description: Not found
+        "204":
+          description: Medical request deleted successfully
 
   /api/medical-requests/{id}/claim:
     post:
-      summary: NGO claims request
       tags:
         - Medical Requests
+      summary: NGO claims medical request
       security:
         - BearerAuth: []
       parameters:
@@ -1033,21 +1084,15 @@ paths:
           required: true
           schema:
             type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
       responses:
         "200":
-          description: Request claimed
+          description: Medical request claimed successfully
 
   /api/medical-requests/{id}/status:
     put:
-      summary: Update medical request status
       tags:
         - Medical Requests
+      summary: Update medical request status
       security:
         - BearerAuth: []
       parameters:
@@ -1062,12 +1107,16 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - status
               properties:
                 status:
                   type: string
+            example:
+              status: in_transit
       responses:
         "200":
-          description: Status updated
+          description: Medical request status updated successfully
   /api/equipment-Inventory:
     post:
       summary: Add equipment
@@ -1187,11 +1236,11 @@ paths:
       responses:
         "200":
           description: List of equipment by category
-  /api/equipment-Requests:
+  /api/equipment-requests:
     post:
-      summary: Create an equipment request
       tags:
         - Equipment Requests
+      summary: Create equipment request
       security:
         - BearerAuth: []
       requestBody:
@@ -1200,6 +1249,10 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - equipment_id
+                - reason
+                - duration_days
               properties:
                 equipment_id:
                   type: integer
@@ -1207,17 +1260,19 @@ paths:
                   type: string
                 duration_days:
                   type: integer
+            example:
+              equipment_id: 2
+              reason: Temporary use during recovery
+              duration_days: 7
       responses:
-        "200":
-          description: Equipment request created
-        "400":
-          description: Invalid input
+        "201":
+          description: Equipment request created successfully
 
   /api/equipment-requests/{id}/claim:
     post:
-      summary: Claim an equipment request
       tags:
         - Equipment Requests
+      summary: Claim equipment request
       security:
         - BearerAuth: []
       parameters:
@@ -1226,23 +1281,15 @@ paths:
           required: true
           schema:
             type: integer
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
       responses:
         "200":
-          description: Request claimed successfully
-        "404":
-          description: Request not found
+          description: Equipment request claimed successfully
 
   /api/equipment-requests/{id}/status:
     patch:
-      summary: Update equipment request status
       tags:
         - Equipment Requests
+      summary: Update equipment request status
       security:
         - BearerAuth: []
       parameters:
@@ -1257,14 +1304,33 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - status
               properties:
                 status:
                   type: string
+            example:
+              status: delivered
       responses:
         "200":
-          description: Request status updated
-        "404":
-          description: Request not found
+          description: Equipment request status updated successfully
+
+  /api/equipment-requests/{id}:
+    delete:
+      tags:
+        - Equipment Requests
+      summary: Delete equipment request
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Equipment request deleted successfully
   /api/therapy/doctors:
     get:
       summary: Get all therapy doctors
