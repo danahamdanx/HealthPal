@@ -1,5 +1,4 @@
 import * as authService from '../services/auth.service.js';
-import { createLog } from './logs.controller.js';
 
 export const signup = async (req, res) => {
   try {
