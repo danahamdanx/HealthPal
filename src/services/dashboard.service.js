@@ -1,29 +1,25 @@
-// src/services/dashboard.service.js
-import { db } from '../config/db.js';
+import { db } from "../config/db.js";
 
-// 🧑‍🦽 Patient Dashboard
+// ================================
+// 🧑‍🦽 PATIENT DASHBOARD
+// ================================
 export const getPatientDashboardData = async (userId) => {
-  // نجيب بيانات الـ User نفسه
   const [userRows] = await db.query(
-    'SELECT user_id, name, email, role, created_at FROM USERS WHERE user_id = ?',
+    "SELECT user_id, name, email, role, created_at FROM USERS WHERE user_id = ?",
     [userId]
   );
   const user = userRows[0];
 
-  // نجيب patient_id من جدول PATIENTS
   const [patientRows] = await db.query(
-    'SELECT * FROM PATIENTS WHERE user_id = ?',
+    "SELECT * FROM PATIENTS WHERE user_id = ?",
     [userId]
   );
   const patient = patientRows[0];
   const patientId = patient?.patient_id;
 
-  // 1) أقرب الاستشارات القادمة (CONSULTATIONS)
+  // Upcoming consultations
   const [upcomingConsultations] = await db.query(
-    `SELECT c.consultation_id,
-            c.scheduled_time,
-            c.status,
-            c.consultation_type,
+    `SELECT c.consultation_id, c.scheduled_time, c.status, c.consultation_type,
             d.name AS doctor_name
      FROM CONSULTATIONS c
      JOIN DOCTORS d ON c.doctor_id = d.doctor_id
@@ -34,13 +30,9 @@ export const getPatientDashboardData = async (userId) => {
     [patientId]
   );
 
-  // 2) جلسات العلاج (THERAPYSESSIONS) القادمة
+  // Therapy sessions
   const [upcomingTherapySessions] = await db.query(
-    `SELECT t.session_id,
-            t.scheduled_time,
-            t.status,
-            t.session_focus,
-            t.session_mode,
+    `SELECT t.session_id, t.scheduled_time, t.status, t.session_focus, t.session_mode,
             d.name AS doctor_name
      FROM THERAPYSESSIONS t
      JOIN DOCTORS d ON t.doctor_id = d.doctor_id
@@ -51,7 +43,6 @@ export const getPatientDashboardData = async (userId) => {
     [patientId]
   );
 
-  // 3) الحالات (CASES) الخاصة بالمريض
   const [cases] = await db.query(
     `SELECT case_id, title, status, verified, target_amount, raised_amount, created_at
      FROM CASES
@@ -61,7 +52,6 @@ export const getPatientDashboardData = async (userId) => {
     [patientId]
   );
 
-  // 4) طلبات طبية (MEDICALREQUESTS)
   const [medicalRequests] = await db.query(
     `SELECT request_id, item_name, quantity, urgency, status, created_at
      FROM MEDICALREQUESTS
@@ -71,13 +61,9 @@ export const getPatientDashboardData = async (userId) => {
     [patientId]
   );
 
-  // 5) طلبات المعدات (EQUIPMENTREQUESTS)
   const [equipmentRequests] = await db.query(
-    `SELECT er.request_id,
-            ei.name AS equipment_name,
-            er.status,
-            er.duration_days,
-            er.created_at
+    `SELECT er.request_id, ei.name AS equipment_name, er.status,
+            er.duration_days, er.created_at
      FROM EQUIPMENTREQUESTS er
      JOIN EQUIPMENTINVENTORY ei ON er.equipment_id = ei.equipment_id
      WHERE er.patient_id = ?
@@ -97,6 +83,9 @@ export const getPatientDashboardData = async (userId) => {
   };
 };
 
+// ================================
+// 👩‍⚕ DOCTOR DASHBOARD
+// ================================
 // 👩‍⚕ Doctor Dashboard
 export const getDoctorDashboardData = async (userId) => {
   // نجيب بيانات الـ User
@@ -168,5 +157,83 @@ LIMIT 10;
     todayConsultations,
     todayTherapySessions,
     recentPatients,
+  };
+};
+
+// ================================
+// 🏢 NGO DASHBOARD
+// ================================
+export const getNgoDashboardData = async (ngoId) => {
+  const [[casesCount]] = await db.query(
+   ` SELECT COUNT(*) AS total FROM CASES WHERE ngo_id = ?`,
+    [ngoId]
+  );
+
+  const [[totalDonations]] = await db.query(
+    `SELECT SUM(d.amount) AS total
+     FROM DONATIONS d
+     JOIN CASES c ON d.case_id = c.case_id
+     WHERE c.ngo_id = ?`,
+    [ngoId]
+  );
+
+  const [[activeCases]] = await db.query(
+    `SELECT COUNT(*) AS total FROM CASES WHERE ngo_id = ? AND status = 'active'`,
+    [ngoId]
+  );
+
+  const [[closedCases]] = await db.query(
+    `SELECT COUNT(*) AS total FROM CASES WHERE ngo_id = ? AND status = 'closed'`,
+    [ngoId]
+  );
+
+  const [[claimsCount]] = await db.query(
+    `SELECT COUNT(*) AS total FROM REQUESTCLAIMS WHERE ngo_id = ?`,
+    [ngoId]
+  );
+
+  return {
+    casesCount: casesCount.total || 0,
+    totalDonations: totalDonations.total || 0,
+    activeCases: activeCases.total || 0,
+    closedCases: closedCases.total || 0,
+    claimsCount: claimsCount.total || 0,
+  };
+};
+
+// ================================
+// 💸 DONOR DASHBOARD
+// ================================
+export const getDonorDashboardData = async (donorId) => {
+  const [[donationCount]] = await db.query(
+   ` SELECT COUNT(*) AS total FROM DONATIONS WHERE donor_id = ?`,
+    [donorId]
+  );
+
+  const [[totalDonated]] = await db.query(
+    `SELECT SUM(amount) AS total FROM DONATIONS WHERE donor_id = ?`,
+    [donorId]
+  );
+
+  const [[supportedCases]] = await db.query(
+    `SELECT COUNT(DISTINCT case_id) AS total FROM DONATIONS WHERE donor_id = ?`,
+    [donorId]
+  );
+
+  const [recentDonations] = await db.query(
+    `SELECT d.amount, d.donation_date, c.title
+     FROM DONATIONS d
+     JOIN CASES c ON c.case_id = d.case_id
+     WHERE d.donor_id = ?
+     ORDER BY d.donation_date DESC
+     LIMIT 5`,
+    [donorId]
+  );
+
+  return {
+    donationCount: donationCount.total || 0,
+    totalDonated: totalDonated.total || 0,
+    supportedCases: supportedCases.total || 0,
+    recentDonations,
   };
 };
