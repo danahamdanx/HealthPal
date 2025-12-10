@@ -1,16 +1,16 @@
-// src/routes/dashboard.routes.js
-import { Router } from 'express';
-import { authenticate } from '../middleware/authenticate.js';
-import { authorizeRoles } from '../middleware/authorize.middleware.js';
+import express from "express";
 import {
   getPatientDashboard,
   getDoctorDashboard,
-} from '../controllers/dashboard.controller.js';
+  getNgoDashboard,
+  getDonorDashboard,
+} from "../controllers/dashboard.controller.js";
 
+const router = express.Router();
 
-const router = Router();
-
-router.get('/patient', authenticate, authorizeRoles('patient'), getPatientDashboard);
-router.get('/doctor', authenticate, authorizeRoles('doctor'), getDoctorDashboard);
+router.get("/patient", getPatientDashboard);
+router.get("/doctor", getDoctorDashboard);
+router.get("/ngo/:ngoId", getNgoDashboard);
+router.get("/donor/:donorId", getDonorDashboard);
 
 export default router;
