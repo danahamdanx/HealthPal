@@ -6,18 +6,16 @@ import {
   getNgoTopCasesReport,
 } from '../controllers/ngoReports.controller.js';
 // لو عندك authMiddleware و allowRoles
-// import { authMiddleware } from '../middleware/auth.middleware.js';
-// import { allowRoles } from '../middleware/role.middleware.js';
+import { authenticate } from '../middleware/authenticate.js';
+import { authorizeRoles } from '../middleware/authorize.middleware.js';
 
 const router = Router();
 
-// مثال مع auth و role (اختياري):
-// router.get('/:ngoId/reports/summary', authMiddleware, allowRoles('ngo', 'admin'), getNgoSummaryReport);
 
-router.get('/:ngoId/reports/summary', getNgoSummaryReport);
+router.get('/:ngoId/reports/summary',authenticate,authorizeRoles('ngo','admin'), getNgoSummaryReport);
 
-router.get('/:ngoId/reports/donations-by-month', getNgoDonationsByMonthReport);
+router.get('/:ngoId/reports/donations-by-month',authenticate,authorizeRoles('ngo','admin'), getNgoDonationsByMonthReport);
 
-router.get('/:ngoId/reports/top-cases', getNgoTopCasesReport);
+router.get('/:ngoId/reports/top-cases',authenticate,authorizeRoles('ngo','admin'), getNgoTopCasesReport);
 
 export default router;
