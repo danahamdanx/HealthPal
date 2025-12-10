@@ -4,9 +4,6 @@ import {
   getLiveCdcAlerts,
   syncCdcAlerts,
 } from '../controllers/cdcAlerts.controller.js';
-// لو عندك auth:
-// import { authMiddleware } from '../middleware/auth.middleware.js';
-// import { allowRoles } from '../middleware/role.middleware.js';
 
 const router = Router();
 

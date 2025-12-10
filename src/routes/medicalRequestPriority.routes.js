@@ -2,16 +2,16 @@
 import { Router } from 'express';
 import { getPrioritizedMedicalRequests } from '../controllers/medicalRequestPriority.controller.js';
 // لو عندك auth / roles:
-// import { authMiddleware } from '../middleware/auth.middleware.js';
-// import { allowRoles } from '../middleware/role.middleware.js';
+import { authenticate } from '../middleware/authenticate.js';
+import { authorizeRoles } from '../middleware/authorize.middleware.js';
 
 const router = Router();
 
 // GET /api/medical-requests/prioritized
 router.get(
   '/prioritized',
-  // authMiddleware,
-  // allowRoles('ngo', 'admin'),
+  authenticate,
+  authorizeRoles('ngo', 'admin'),
   getPrioritizedMedicalRequests
 );
 
