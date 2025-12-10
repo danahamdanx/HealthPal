@@ -1,7 +1,7 @@
 // src/services/consultation.service.js
 import { db } from '../config/db.js';
 import { sendEmail } from '../utils/mailer.js';
-import { generateDonationInvoice } from '../utils/pdfGenerator.js';
+import { generateConsultationReport } from '../utils/pdfGenerator.js';
 
 // =======================
 // Helpers: تضارب المواعيد
@@ -165,7 +165,7 @@ export const updateConsultation = async (id, user, updates) => {
   const values = [];
   allowedFields.forEach((f) => {
     if (updates[f] !== undefined) {
-      setFields.push(`${f} = ?1`);
+setFields.push(`${f} = ?`);
       values.push(updates[f]);
     }
   });
@@ -207,13 +207,18 @@ Treatment: ${updatedConsultation.treatment || '—'}
 Notes: ${updatedConsultation.notes || '—'}
         `;
 
-        // 🧾 نستخدم نفس ال generator تبعك بدون ما نعدّل عليه
-        const pdfPath = await generateDonationInvoice({
-          donorName: patient.name,                      // رح يطلع تحت Donor Name
-          caseTitle,                                   // رح يطلع تحت Case Title (بس نص مرتب)
-          amount: '',                                  // ما بهمنها هون، منتركها فاضية
-          date: updatedConsultation.scheduled_time,    // تاريخ/وقت الاستشارة
-        });
+     const pdfPath = await generateConsultationReport({
+  consultationId: updatedConsultation.consultation_id,
+  patientName: patient.name,
+  doctorName: doctor.name,
+  scheduledTime: updatedConsultation.scheduled_time,
+  consultationType: updatedConsultation.consultation_type,
+  status: updatedConsultation.status,
+  diagnosis: updatedConsultation.diagnosis,
+  treatment: updatedConsultation.treatment,
+  notes: updatedConsultation.notes,
+});
+
 
         // 📧 نرسل التقرير للمريض كمرفق
         await sendEmail({
@@ -224,12 +229,13 @@ Notes: ${updatedConsultation.notes || '—'}
                  <p>Your consultation with <strong>${doctor?.name || 'your doctor'}</strong> has been updated.</p>
                  <p>A summary of the consultation is attached as a PDF report.</p>
                  <p>Best regards,<br/>HealthPal Team</p>`,
-          attachments: [
-            {
-              filename: `consultation-${updatedConsultation.consultation_id}.pdf`,
-              path: pdfPath,
-            },
-          ],
+        attachments: [
+  {
+    filename: `consultation-${updatedConsultation.consultation_id}.pdf`,
+    path: pdfPath,
+  },
+],
+
         });
       }
     } catch (err) {
