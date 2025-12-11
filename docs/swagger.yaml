@@ -19,7 +19,9 @@ tags:
   - name: NGOs
     description: Endpoints for managing NGO profiles and their associated cases or donations
   - name: Donors
-    description: Endpoints for managing donor profiles, donation history, and invoices
+    description: Endpoints for managing donor profiles
+  - name: Donations
+    description: Endpoints for creating donations and retrieving donor donation history
   - name: Consultations
     description: Endpoints for scheduling, updating, and retrieving medical consultations
   - name: Cases
@@ -309,22 +311,6 @@ paths:
       responses:
         "200":
           description: List of patients
-    post:
-      summary: Create patient
-      tags:
-        - Patients
-      responses:
-        "200":
-          description: patient Added
-      security:
-        - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-
   /api/patients/{id}:
     get:
       summary: Get patient by ID
@@ -632,6 +618,62 @@ paths:
       responses:
         "200":
           description: NGO deleted
+  /api/ngos/{ngoId}/reports/summary:
+    get:
+      tags:
+        - NGOs
+      summary: Get NGO reports summary
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: NGO summary report
+        "401":
+          description: Unauthorized
+
+  /api/ngos/{ngoId}/reports/donations-by-month:
+    get:
+      tags:
+        - NGOs
+      summary: Get NGO donations by month
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Donations by month report
+        "401":
+          description: Unauthorized
+
+  /api/ngos/{ngoId}/reports/top-cases:
+    get:
+      tags:
+        - NGOs
+      summary: Get NGO top cases
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: ngoId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Top cases report
+        "401":
+          description: Unauthorized
   /api/donors:
     post:
       tags:
@@ -701,7 +743,7 @@ paths:
   /api/donations:
     post:
       tags:
-        - Donors
+        - Donations
       summary: Make donation
       security:
         - BearerAuth: []
@@ -729,6 +771,26 @@ paths:
       responses:
         "201":
           description: Donation created successfully
+  /api/donations/case/{caseId}:
+    get:
+      tags:
+        - Donations
+      summary: Get donation history for a case
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: caseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Donation history fetched successfully
+        "401":
+          description: Unauthorized access
+        "404":
+          description: Case not found
   /api/consultations:
     post:
       summary: Create a consultation
@@ -1267,6 +1329,17 @@ paths:
       responses:
         "201":
           description: Equipment request created successfully
+    get:
+      tags:
+        - Equipment Requests
+      summary: List all equipment requests
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of equipment requests
+        "401":
+          description: Unauthorized
 
   /api/equipment-requests/{id}/claim:
     post:
@@ -1331,6 +1404,18 @@ paths:
       responses:
         "204":
           description: Equipment request deleted successfully
+  /api/equipment-requests/my:
+    get:
+      tags:
+        - Equipment Requests
+      summary: Get my equipment requests
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: User's own request list
+        "401":
+          description: Unauthorized
   /api/therapy/doctors:
     get:
       summary: Get all therapy doctors
@@ -1654,4 +1739,17 @@ paths:
                     created_at:
                       type: string
                       format: date-time
+
+  /api/public-health-alerts/cdc/live:
+    get:
+      tags:
+        - Health Alerts
+      summary: Get live CDC public health alerts
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: List of live CDC alerts
+        "401":
+          description: Unauthorized
 components:
