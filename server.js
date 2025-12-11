@@ -28,6 +28,7 @@ import dashboardRoutes from './src/routes/dashboard.routes.js';
 import ngoReportsRoutes from './src/routes/ngoReports.routes.js';
 import medicalRequestPriorityRoutes from './src/routes/medicalRequestPriority.routes.js';
 import cdcAlertsRoutes from './src/routes/cdcAlerts.routes.js';
+import prescriptionRoutes from './src/routes/consultationMedicine.routes.js';
 
 
 
@@ -64,7 +65,8 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/ngos', ngoReportsRoutes);
 app.use('/api/medical-requests', medicalRequestPriorityRoutes);
 app.use('/api/public-health-alerts', cdcAlertsRoutes);
- 
+ app.use("/api/prescriptions", prescriptionRoutes);
+
 
 
 
