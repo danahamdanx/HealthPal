@@ -32,8 +32,10 @@ import cdcAlertsRoutes from './src/routes/cdcAlerts.routes.js';
 
 
 
-dotenv.config();
 
+dotenv.config();
+const supportTicketsRoutes = require("./src/routes/supportTickets.routes");
+app.use("/api/support", supportTicketsRoutes);
 const app = express();
 app.use(cors());
 app.use(express.json());
