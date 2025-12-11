@@ -130,7 +130,7 @@ Case progress and status summaries
 
  <li><strong>PDF Generation</strong><br/>
   Consultation report PDFs including diagnosis, notes, and treatment
-  Prescription PDFs generated and signed by doctors
+  Prescription PDFs generated
   Donation receipt PDFs automatically generated and sent to donors
 </li>
 
