@@ -99,3 +99,73 @@ export const deleteEquipmentRequestService = async (request_id, user) => {
   await db.query(`DELETE FROM EquipmentRequests WHERE request_id = ?`, [request_id]);
   return { message: "Equipment request deleted successfully" };
 };
+// ✅ Get all equipment requests for current patient
+export const getMyEquipmentRequestsService = async (user) => {
+  if (!user.patient_id) throw new Error("Patient only");
+
+  const patient_id = user.patient_id;
+
+  const [rows] = await db.query(
+    `SELECT 
+        er.request_id,
+        er.equipment_id,
+        er.reason,
+        er.duration_days,
+        er.status,
+        er.claimed_by_user_id,
+        er.claimed_by_type,
+        er.created_at,
+        er.updated_at,
+        ei.name AS equipment_name,
+        ei.category,
+        ei.item_condition,
+        ei.location
+     FROM EquipmentRequests er
+     JOIN EquipmentInventory ei ON er.equipment_id = ei.equipment_id
+     WHERE er.patient_id = ?
+     ORDER BY er.created_at DESC`,
+    [patient_id]
+  );
+
+  return rows;
+};
+// ✅ List equipment requests (for admin / ngo / donor)
+export const listEquipmentRequestsService = async (user, { status }) => {
+  // نحدد إذا مسموح يشوف
+  if (!["admin", "ngo", "donor"].includes(user.role)) {
+    throw new Error("Not authorized to view equipment requests");
+  }
+
+  let query = `
+    SELECT 
+      er.request_id,
+      er.equipment_id,
+      er.patient_id,
+      er.reason,
+      er.duration_days,
+      er.status,
+      er.claimed_by_user_id,
+      er.claimed_by_type,
+      er.created_at,
+      er.updated_at,
+      p.name AS patient_name,
+      ei.name AS equipment_name,
+      ei.category,
+      ei.location
+    FROM EquipmentRequests er
+    JOIN Patients p ON er.patient_id = p.patient_id
+    JOIN EquipmentInventory ei ON er.equipment_id = ei.equipment_id
+  `;
+
+  const params = [];
+
+  if (status) {
+    query += ` WHERE er.status = ?`;
+    params.push(status);
+  }
+
+  query += ` ORDER BY er.created_at DESC`;
+
+  const [rows] = await db.query(query, params);
+  return rows;
+};

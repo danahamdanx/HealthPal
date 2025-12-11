@@ -20,12 +20,18 @@ export const getConsultationById = async (req, res) => {
 
 export const createConsultation = async (req, res) => {
   try {
-    const consultation = await consultationService.createConsultation(req.body);
+    const data = {
+      ...req.body,
+      patient_id: req.user.patient_id, // ✅ من التوكن
+    };
+
+    const consultation = await consultationService.createConsultation(data);
     res.status(201).json(consultation);
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
 };
+
 
 export const updateConsultation = async (req, res) => {
   try {
@@ -49,6 +55,17 @@ export const deleteConsultation = async (req, res) => {
   try {
     const result = await consultationService.deleteConsultation(req.params.id);
     res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
+// ⭐ جديد: فحص تضارب المواعيد بدون إنشاء
+// POST /consultations/check-conflict
+export const checkConsultationConflict = async (req, res) => {
+  try {
+    const result = await consultationService.checkConsultationConflict(req.body);
+    res.json(result); // { conflict: true/false, conflicts: [...] }
   } catch (err) {
     res.status(400).json({ error: err.message });
   }

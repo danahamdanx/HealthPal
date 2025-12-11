@@ -1,64 +1,150 @@
-import { db } from '../config/db.js';
+import { db } from "../config/db.js";
 
-export const getAllDoctors = async () => {
-  const [rows] = await db.query(`SELECT * FROM doctors`);
-  return rows;
-};
+export const Doctors = {
 
-export const getDoctorById = async (id) => {
-  const [rows] = await db.query(`SELECT * FROM doctors WHERE doctor_id=$1`, [id]);
-  return rows[0];
-};
+  // ===============================
+  //           GET ALL
+  // ===============================
+  getAll: () => {
+    return db.query("SELECT * FROM doctors");
+  },
 
-export const createDoctor = async (data) => {
-  const {
-    name, phone, email, gender, qualification,
-    hospital_name, address, specialty, license_number,
-    experience_years, availability, user_id
-  } = data;
+  // ===============================
+  //           GET BY ID
+  // ===============================
+  getById: (id) => {
+    return db.query("SELECT * FROM doctors WHERE doctor_id = ?", [id]);
+  },
 
-  const [rows] = await db.query(
-    `INSERT INTO doctors 
-    (name, phone, email, gender, qualification, hospital_name, address, specialty,
-     license_number, experience_years, availability, user_id)
-    VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
-    RETURNING *`,
-    [
+  // ===============================
+  //           CREATE DOCTOR
+  // ===============================
+  create: (data) => {
+    const {
       name, phone, email, gender, qualification,
       hospital_name, address, specialty, license_number,
       experience_years, availability, user_id
-    ]
-  );
+    } = data;
 
-  return rows[0];
-};
+    return db.query(
+      `INSERT INTO doctors 
+      (name, phone, email, gender, qualification, hospital_name, address, specialty, 
+       license_number, experience_years, availability, user_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        name, phone, email, gender, qualification,
+        hospital_name, address, specialty, license_number,
+        experience_years, availability, user_id
+      ]
+    );
+  },
 
-export const updateDoctor = async (id, data) => {
-  const {
-    name, phone, email, gender, qualification,
-    hospital_name, address, specialty, license_number,
-    experience_years, availability, user_id
-  } = data;
-
-  const [rows] = await db.query(
-    `UPDATE doctors SET 
-      name=$1, phone=$2, email=$3, gender=$4, qualification=$5,
-      hospital_name=$6, address=$7, specialty=$8,
-      license_number=$9, experience_years=$10,
-      availability=$11, user_id=$12
-    WHERE doctor_id=$13 RETURNING *`,
-    [
+  // ===============================
+  //           UPDATE DOCTOR
+  // ===============================
+  update: (id, data) => {
+    const {
       name, phone, email, gender, qualification,
       hospital_name, address, specialty, license_number,
-      experience_years, availability, user_id,
-      id
-    ]
-  );
+      experience_years, availability, user_id
+    } = data;
 
-  return rows[0];
-};
+    return db.query(
+      `UPDATE doctors SET 
+        name=?, phone=?, email=?, gender=?, qualification=?,
+        hospital_name=?, address=?, specialty=?, license_number=?,
+        experience_years=?, availability=?, user_id=?
+       WHERE doctor_id=?`,
+      [
+        name, phone, email, gender, qualification,
+        hospital_name, address, specialty, license_number,
+        experience_years, availability, user_id, id
+      ]
+    );
+  },
 
-export const deleteDoctor = async (id) => {
-  await db.query(`DELETE FROM doctors WHERE doctor_id=$1`, [id]);
-  return true;
+  // ===============================
+  //           DELETE DOCTOR
+  // ===============================
+  delete: (id) => {
+    return db.query("DELETE FROM doctors WHERE doctor_id=?", [id]);
+  },
+
+  // ===============================
+  //   GET DOCTORS BY SPECIALTY
+  // ===============================
+  getBySpecialty: (specialty) => {
+    return db.query(
+      "SELECT * FROM doctors WHERE specialty = ? ORDER BY name ASC",
+      [specialty]
+    );
+  },
+
+  // ===============================
+  //        DOCTOR SEARCH
+  // ===============================
+  search: (keyword) => {
+    return db.query(
+      `SELECT * FROM doctors
+       WHERE name LIKE ?
+       OR specialty LIKE ?
+       OR hospital_name LIKE ?`,
+      [`%${keyword}%`, `%${keyword}%`, `%${keyword}%`]
+    );
+  },
+
+  // ===============================
+  //       UPDATE VERIFICATION
+  // ===============================
+  updateVerificationStatus: (id, status) => {
+    return db.query(
+      "UPDATE doctors SET verification_status = ? WHERE doctor_id = ?",
+      [status, id]
+    );
+  },
+
+  // ===============================
+  //       UPDATE FEE
+  // ===============================
+  updateConsultationFee: (id, fee) => {
+    return db.query(
+      "UPDATE doctors SET consultation_fee = ? WHERE doctor_id = ?",
+      [fee, id]
+    );
+  },
+
+  // ===============================
+  //       RATING SUMMARY
+  // ===============================
+  getRatingSummary: (doctorId) => {
+    return db.query(`
+      SELECT 
+        AVG(rating) AS avg_rating,
+        COUNT(*) AS total_reviews,
+        SUM(rating = 5) AS stars_5,
+        SUM(rating = 4) AS stars_4,
+        SUM(rating = 3) AS stars_3,
+        SUM(rating = 2) AS stars_2,
+        SUM(rating = 1) AS stars_1
+      FROM doctor_reviews
+      WHERE doctor_id = ?
+    `, [doctorId]);
+  },
+
+  // ===============================
+  //        DOCTOR STATS
+  // ===============================
+  getStats: (doctorId) => {
+    const query1 = db.query(
+      "SELECT COUNT(*) AS total_reviews FROM doctor_reviews WHERE doctor_id = ?",
+      [doctorId]
+    );
+
+    const query2 = db.query(
+      "SELECT COUNT(*) AS total_prescriptions FROM prescriptions WHERE doctor_id = ?",
+      [doctorId]
+    );
+
+    return Promise.all([query1, query2]);
+  }
 };

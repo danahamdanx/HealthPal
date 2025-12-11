@@ -13,21 +13,21 @@ import { authorizeRoles } from "../middleware/authorize.middleware.js";
 
 const router = express.Router();
 
-/* -------------------------------------------
-   Get all therapy doctors
-   Roles: patient, admin, ngo, donor
--------------------------------------------- */
+/* ---------------------------------------------------
+   Get all doctors who offer therapy
+   Roles: patient, doctor, admin, ngo, donor
+--------------------------------------------------- */
 router.get(
   "/doctors",
   authenticate,
-  authorizeRoles("patient", "admin", "ngo", "donor"),
+  authorizeRoles("patient", "doctor", "admin", "ngo", "donor"),
   getTherapyDoctors
 );
 
-/* -------------------------------------------
-   Patient creates a therapy session
-   Roles: patient only
--------------------------------------------- */
+/* ---------------------------------------------------
+   Create a new therapy session (booking)
+   Role: patient only
+--------------------------------------------------- */
 router.post(
   "/",
   authenticate,
@@ -45,20 +45,22 @@ router.get(
   authorizeRoles("patient"),
   getPatientTherapySessions
 );
-/* -------------------------------------------
-   Get all sessions for logged-in doctor
-   Roles: doctor only
--------------------------------------------- */
+
+/* ---------------------------------------------------
+   Get all therapy sessions for the logged-in doctor
+   Role: doctor only
+--------------------------------------------------- */
 router.get(
   "/doctor/sessions",
   authenticate,
   authorizeRoles("doctor"),
   getDoctorTherapySessions
 );
-/* -------------------------------------------
-   Update therapy session status
+
+/* ---------------------------------------------------
+   Update session status (approved, rejected, completed, canceled)
    Roles: doctor, admin
--------------------------------------------- */
+--------------------------------------------------- */
 router.patch(
   "/:id/status",
   authenticate,

@@ -1,7 +1,7 @@
 import { db } from "../config/db.js";
 import { sendEmail } from "../utils/mailer.js";
 
-
+// قائمة التخصصات العلاجية
 const therapySpecialties = [
   "clinical psychology",
   "psychology",
@@ -158,40 +158,49 @@ export const getDoctorTherapySessions = async (req, res) => {
 
 
 /* ---------------------------------------------------
-   Update therapy session status (doctor only)
+   Update session status (+ cancellation reason)
 --------------------------------------------------- */
 export const updateTherapySessionStatus = async (req, res) => {
   try {
     const sessionId = req.params.id;
-    const { status } = req.body;
+    const { status, cancellation_reason } = req.body;
 
     const validStatuses = ["approved", "rejected", "completed", "canceled"];
-    if (!validStatuses.includes(status)) return res.status(400).json({ error: "Invalid status" });
 
-    const [sessions] = await db.query(`SELECT * FROM TherapySessions WHERE session_id = ?`, [sessionId]);
-    if (!sessions.length) return res.status(404).json({ error: "Session not found" });
-    const session = sessions[0];
+    if (!validStatuses.includes(status))
+      return res.status(400).json({ error: "Invalid status" });
 
-    await db.query(`UPDATE TherapySessions SET status = ? WHERE session_id = ?`, [status, sessionId]);
+    const [sessions] = await db.query(
+      `SELECT * FROM TherapySessions WHERE session_id = ?`,
+      [sessionId]
+    );
 
-    // Fetch patient & doctor emails
-    const [patientRows] = await db.query(`SELECT email, name FROM Patients WHERE patient_id = ?`, [session.patient_id]);
-    const [doctorRows] = await db.query(`SELECT email, name FROM Doctors WHERE doctor_id = ?`, [session.doctor_id]);
+    if (!sessions.length)
+      return res.status(404).json({ error: "Session not found" });
 
-    const patient = patientRows[0];
-    const doctor = doctorRows[0];
-
-    // Send email notification
-    if (patient?.email) {
-      await sendEmail({
-        email: patient.email,
-        subject: `Therapy Session ${status}`,
-        message: `Hello ${patient.name}, your therapy session scheduled on ${session.scheduled_time} is now ${status}.`,
-        html: `<p>Hello <strong>${patient.name}</strong>,</p><p>Your therapy session scheduled on <strong>${session.scheduled_time}</strong> is now <strong>${status}</strong>.</p>`
-      });
+    // تحديث مع سبب الإلغاء
+    if (status === "canceled") {
+      await db.query(
+        `UPDATE TherapySessions 
+         SET status = ?, cancellation_reason = ?
+         WHERE session_id = ?`,
+        [status, cancellation_reason || null, sessionId]
+      );
+    } else {
+      await db.query(
+        `UPDATE TherapySessions 
+         SET status = ?
+         WHERE session_id = ?`,
+        [status, sessionId]
+      );
     }
 
-    res.json({ ...session, status });
+    const [updated] = await db.query(
+      `SELECT * FROM TherapySessions WHERE session_id = ?`,
+      [sessionId]
+    );
+
+    res.json(updated[0]);
 
   } catch (err) {
     console.error("Error updating session status:", err);

@@ -24,7 +24,12 @@ import therapyRoutes from "./src/routes/therapy.routes.js";
 import healthEducationRoutes from "./src/routes/healthEducation.routes.js";
 import externalHealthRoutes from "./src/routes/externalHealth.routes.js";
 import workshopRoutes from "./src/routes/healthWorkshops.routes.js";
-
+import dashboardRoutes from './src/routes/dashboard.routes.js';
+import ngoReportsRoutes from './src/routes/ngoReports.routes.js';
+import medicalRequestPriorityRoutes from './src/routes/medicalRequestPriority.routes.js';
+import cdcAlertsRoutes from './src/routes/cdcAlerts.routes.js';
+import prescriptionRoutes from './src/routes/consultationMedicine.routes.js';
+import supportTickets from './src/routes/supportTickets.routes.js';
 
 
 
@@ -57,9 +62,13 @@ app.use("/api/therapy", therapyRoutes);
 app.use("/api/health_alert",healthEducationRoutes);
 app.use("/api/external_health_article", externalHealthRoutes);
 app.use("/api", workshopRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/ngos', ngoReportsRoutes);
+app.use('/api/medical-requests', medicalRequestPriorityRoutes);
+app.use('/api/public-health-alerts', cdcAlertsRoutes);
+ app.use("/api/prescriptions", prescriptionRoutes);
+ app.use("/api/support-tickets",supportTickets);
 
-
- 
 
 
 

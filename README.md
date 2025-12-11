@@ -1,21 +1,27 @@
 # HealthPal
 
 <div>
-<p align="center">
-  <img src="assets/logo.png" alt="HealthPal Logo"  height="350" width="350"/>
-</p>
-<h3 align="center">HealthPal</h3>
+  <p align="center">
+    <img src="assets/logo.png" alt="HealthPal Logo" height="350" width="350"/>
+  </p>
+
+  <h3 align="center">HealthPal</h3>
 
   <p align="center">
-Your all-in-one platform for healthcare management, connecting patients, doctors, NGOs, donors, and medical services.
+    A unified healthcare management ecosystem that connects patients, doctors, NGOs, donors, and service providers through a secure and intuitive digital platform.
     <br />
     <a href="https://github.com/danahamdanx/HealthPal/wiki"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
+    <br /><br />
   </p>
 </div>
 
-**HealthPal** is a comprehensive healthcare platform that empowers patients, doctors, NGOs, donors, and administrators to manage medical services efficiently. From scheduling consultations and therapy sessions to managing donations, medical equipment, health articles, and public alerts, HealthPal streamlines all healthcare operations in one intuitive platform.
+<p>
+<strong>HealthPal</strong> is a complete healthcare coordination system built to simplify and automate medical assistance workflows. It integrates patient care, doctor consultations, NGO case management, donation tracking, medical equipment requests, health education, and public safety alerts into one platform. 
+</p>
+
+<p>
+Backed by a robust PostgreSQL schema, HealthPal ensures secure authentication, role-based access, real-time tracking, automated reporting, NGO analytics, and PDF-generated summaries and prescriptions.
+</p>
 
 ## GitHub Repository Information :small_blue_diamond:
 
@@ -36,66 +42,115 @@ Your all-in-one platform for healthcare management, connecting patients, doctors
 - [External Libraries and Packages](#external-libraries-and-packages)
 - [Installation](#installation)
 
-## Core Features⭐
+## Core Features ⭐
 
-1. Patient and Doctor Management:
+<ol>
+  <li><strong>User & Role Management</strong><br/>
+      Secure authentication with hashed credentials and JWT-based role control for:
+      Admins, Doctors, Patients, NGOs, and Donors.
+  </li>
 
-   - Create, update, and view patient and doctor profiles.
-   - Track patient medical history, demographics, and health records.
-   - Doctors can manage consultations, diagnoses, and treatments.
+  <li><strong>Patient & Doctor Profiles</strong><br/>
+      Comprehensive patient medical histories, demographic info, and clinical notes.
+      Doctors maintain specialties, availability, licenses, and professional experience.
+  </li>
 
-2. Consultations & Therapy Sessions:
-   - Schedule consultations with doctors.
-   - Book therapy sessions with specialists.
-   - Track session progress, notes, and status.
-   - Doctors and patients have separate views for session management.
-3. NGO Support & Donations:
+  <li><strong>Consultations</strong><br/>
+      Patients schedule sessions with doctors, with support for translations, diagnoses, treatments,
+      and structured clinical notes stored directly in the database.
+  </li>
 
-   - NGOs can register, verify requests, and manage aid cases.
-   - Donors can contribute to patient cases and track donations.
-   - Full audit of donor contributions and case progress.
+  <li><strong>Therapy Sessions</strong><br/>
+      Session tracking with duration, focused topics, initial concerns, progress summaries,
+      recurring appointments, and doctor–patient follow-up.
+  </li>
 
-4. Medical Requests & Equipment Management:
+  <li><strong>NGO Case Management</strong><br/>
+      NGOs manage medical cases, verify details, update case progress, and track raised vs. targeted amounts.
+  </li>
 
-   - Submit and manage medical supply requests.
-   - NGOs can claim requests and update their status.
-   - Add, update, and track medical equipment availability and conditions.
+  <li><strong>Donation System</strong><br/>
+      Donors contribute to cases, view contribution history, and track progress.
+      Monthly summaries and case-level financial analytics are generated for transparency.
+  </li>
 
-5. Health Articles & Alerts:
-   - Publish, retrieve, and categorize health guides and articles.
-   - Post public health alerts with severity levels.
-6. Workshops & Community Education:
-   - Host health workshops with registration management.
-   - Track participants and manage schedules.
+  <li><strong>Medical Requests</strong><br/>
+      Patients submit medical supply requests with urgency levels.
+      NGOs or donors can claim requests and update their status through the lifecycle.
+  </li>
+
+  <li><strong>Equipment Inventory & Lending</strong><br/>
+      Add, categorize, and track medical equipment.
+      Patients can request equipment, while NGOs/Donors can review, approve, or claim requests.
+  </li>
+
+  <li><strong>Workshops & Health Education</strong><br/>
+      Host health workshops, manage attendees, and track registrations.
+  </li>
+
+  <li><strong>Health Guides & Articles</strong><br/>
+      Publish categorized health content in different languages with images and metadata.
+  </li>
+
+  <li><strong>Public Health Alerts</strong><br/>
+      Issue alerts with severity levels, regions, expiration dates, and emergency classifications.
+  </li>
+
+  <li><strong>Support Tickets (NGO Complaints)</strong><br/>
+      NGOs can submit complaints or support inquiries with tracking and follow-up by administrators.
+  </li>
+
+  <li><strong>Audit Logs</strong><br/>
+      Every user action is logged with a status code, message, and timestamp for full traceability.
+  </li>
+</ol>
 
 ## Extra Features⭐⭐
 
-1. Roles: Supports multiple user roles for secure operations🙌
+<ul>
+ <li><strong>Role Dashboard</strong><br/>
 
-   - Admins: Full control over platform operations and data.
-   - Doctors: Manage consultations, diagnoses, and therapy sessions.
-   - Patients: Request medical assistance, attend consultations and therapy.
-   - NGOs: Manage aid cases and claim requests.
-   - Donors: Contribute to cases and track donations.
+<strong>Patient Dashboard</strong>
+Displays essential patient activity such as upcoming consultations, therapy sessions, recent cases, medical requests, and equipment requests.
+<strong>Doctor Dashboard</strong>
+Shows the doctor’s daily schedule including today’s consultations, therapy sessions, and recently attended patients.
+<strong>NGO Dashboard</strong>
+Provides case statistics, total donations received, active/closed case counts, and request claim activity.
+<strong>Donor Dashboard</strong>
+Summarizes donor activity including total donations, supported cases, and recent contribution history.
 
-2. Notifications & Alerts:💌
+</li>
 
-   - Email notifications for appointments, sessions, donations, and equipment claims.
-   - Health alerts notify users of urgent community health issues.
+ <li><strong>Reporting & Analytics (API)</strong><br/>
+Monthly donation summary (per donor, NGO, or full platform)
+Top NGO-managed cases based on activity or donations
+Medical requests sorted by priority levels
+Case progress and status summaries
+</li>
 
-3. Data Security & Privacy:🛡
+ <li><strong>PDF Generation</strong><br/>
+  Consultation report PDFs including diagnosis, notes, and treatment
+  Prescription PDFs generated
+  Donation receipt PDFs automatically generated and sent to donors
+</li>
 
-   - Secure storage of user credentials with password hashing.
-   - JWT tokens for role-based access control.
-   - All sensitive actions require authentication.
+  <li><strong>Email Notifications</strong><br/>
+      Automated reminders for consultations, therapy sessions, medical request updates,
+      donation confirmations, and equipment claims.
+  </li>
 
-4. Reporting & Tracking:📊
+  <li><strong>Session & Activity Tracking</strong><br/>
+      Detailed logs for system monitoring and debugging.
+  </li>
 
-   - Track donations, case progress, medical requests, and therapy sessions.
-   - Administrators can monitor all platform activities for oversight.
+  <li><strong>Token Blacklisting</strong><br/>
+      Secure logout and revoked token handling through a blacklist table.
+  </li>
 
-5. Error Handling and Logging:
-   - Specific error messages and logs to support debugging and monitoring.
+  <li><strong>Role-Based Data Access</strong><br/>
+      Each role has filtered and secure access to their own domain-specific data.
+  </li>
+</>
 
 ## Technologies Used⚙
 
@@ -108,16 +163,20 @@ Your all-in-one platform for healthcare management, connecting patients, doctors
 
 ## External APIs Used📌
 
-- WHO RSS Feed: Provides the latest English health articles for aggregation and storage in the database.
-- (Optional) Fast XML Parser: Parses XML data from RSS feeds when needed.
+<ul>
+  <li><strong>WHO RSS Feed</strong><br/>
+      Retrieves the latest global health articles and advisories for storage and presentation within HealthPal.</li>
+
+  <li><strong>CDC Media API</strong><br/>
+      <code>https://tools.cdc.gov/api/v2/resources/media</code><br/>
+      Fetches verified health content, public safety guidance, and disease updates for integration into the Health Guides and Alerts modules.</li>
+</ul>
 
 ## External Libraries and Packages📦
 
-- **pg**: PostgreSQL database connection and management.
 - **bcrypt**: Password encryption and secure authentication.
 - **jsonwebtoken (jwt)**: Secure token generation for authentication and role-based access.
 - **express**: Server framework for routing and HTTP handling.
-- **cookie-parser**: Manage tokens via cookies.
 - **express-session**: Session management for user activities.
 - **node-cron**: Schedule notifications and automated tasks.
 - **axios**: HTTP requests to external APIs.
