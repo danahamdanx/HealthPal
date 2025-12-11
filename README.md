@@ -19,9 +19,7 @@
 <strong>HealthPal</strong> is a complete healthcare coordination system built to simplify and automate medical assistance workflows. It integrates patient care, doctor consultations, NGO case management, donation tracking, medical equipment requests, health education, and public safety alerts into one platform. 
 </p>
 
-<p>
-Backed by a robust PostgreSQL schema, HealthPal ensures secure authentication, role-based access, real-time tracking, automated reporting, NGO analytics, and PDF-generated summaries and prescriptions.
-</p>
+<p> Backed by a robust MySQL schema, HealthPal ensures secure authentication, role-based access, real-time tracking, automated reporting, NGO analytics, and PDF-generated summaries and prescriptions. </p>
 
 ## GitHub Repository Information :small_blue_diamond:
 
