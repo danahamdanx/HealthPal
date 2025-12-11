@@ -8,6 +8,9 @@ export const generateToken = (user, expiresIn = '7d') => {
       role: user.role,         // موجود
       patient_id: user.patient_id || null,
       doctor_id: user.doctor_id || null,
+      donor_id: user.donor_id || null,
+      ngo_id: user.ngo_id || null,
+
     },
     JWT_SECRET,
     { expiresIn }

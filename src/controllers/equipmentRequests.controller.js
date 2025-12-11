@@ -36,3 +36,20 @@ export const deleteEquipmentRequest = async (req, res) => {
     res.status(403).json({ error: err.message });
   }
 };
+export const getMyEquipmentRequests = async (req, res) => {
+  try {
+    const requests = await equipmentRequestService.getMyEquipmentRequestsService(req.user);
+    res.json(requests);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+export const listEquipmentRequests = async (req, res) => {
+  try {
+    const { status } = req.query; // ?status=pending مثلاً
+    const result = await equipmentRequestService.listEquipmentRequestsService(req.user, { status });
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
