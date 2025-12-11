@@ -108,36 +108,36 @@ Backed by a robust PostgreSQL schema, HealthPal ensures secure authentication, r
 ## Extra Features⭐⭐
 
 <ul>
-<h2>Role Dashboards</h2>
+ <li><strong>Role Dashboard</strong><br/>
 
-<p><strong>Patient Dashboard</strong><br/>
-Displays essential patient activity such as upcoming consultations, therapy sessions, recent cases, medical requests, and equipment requests.</p>
+<strong>Doctor Dashboard</strong>
+Displays essential patient activity such as upcoming consultations, therapy sessions, recent cases, medical requests, and equipment requests.
 
-<p><strong>Doctor Dashboard</strong><br/>
-Shows the doctor’s daily schedule including today’s consultations, therapy sessions, and recently attended patients.</p>
+<strong>Doctor Dashboard</strong>
+Shows the doctor’s daily schedule including today’s consultations, therapy sessions, and recently attended patients.
 
-<p><strong>NGO Dashboard</strong><br/>
-Provides case statistics, total donations received, active/closed case counts, and request claim activity.</p>
+<strong>NGO Dashboard</strong>
+Provides case statistics, total donations received, active/closed case counts, and request claim activity.
 
-<p><strong>Donor Dashboard</strong><br/>
-Summarizes donor activity including total donations, supported cases, and recent contribution history.</p>
+<strong>Donor Dashboard</strong>
+Summarizes donor activity including total donations, supported cases, and recent contribution history.
 
-<h2>Reporting & Analytics (API)</h2>
+</li>
 
-<ul>
-  <li>Monthly donation summary (per donor, NGO, or full platform)</li>
-  <li>Top NGO-managed cases based on activity or donations</li>
-  <li>Medical requests sorted by priority levels</li>
-  <li>Case progress and status summaries</li>
-</ul>
+ <li><strong>Reporting & Analytics (API)</strong><br/>
 
-<h2>PDF Generation</h2>
+Monthly donation summary (per donor, NGO, or full platform)
+Top NGO-managed cases based on activity or donations
+Medical requests sorted by priority levels
+Case progress and status summaries
 
-<ul>
-  <li>Consultation report PDFs including diagnosis, notes, and treatment</li>
-  <li>Prescription PDFs generated and signed by doctors</li>
-  <li>Donation receipt PDFs automatically generated and sent to donors</li>
-</ul>
+</li>
+
+ <li><strong>PDF Generation</strong><br/>
+  Consultation report PDFs including diagnosis, notes, and treatment
+  Prescription PDFs generated and signed by doctors
+  Donation receipt PDFs automatically generated and sent to donors
+</li>
 
   <li><strong>Email Notifications</strong><br/>
       Automated reminders for consultations, therapy sessions, medical request updates,
@@ -159,7 +159,7 @@ Summarizes donor activity including total donations, supported cases, and recent
   <li><strong>Automated Cron Jobs</strong><br/>
       Background tasks for syncing health alerts, sending reminders, and maintaining data freshness.
   </li>
-</ul>
+</>
 
 ## Technologies Used⚙
 
