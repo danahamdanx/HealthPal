@@ -80,3 +80,7 @@ import doctorRoutes from './src/routes/doctors.routes.js';
 app.use("/api/doctors", doctorRoutes);
  import doctorDocumentsRoutes from "./src/routes/doctorDocuments.routes.js";
 app.use("/api/doctor-documents", doctorDocumentsRoutes);
+
+import therapyRoutes from "./src/routes/therapy.routes.js";
+
+app.use("/api/therapy", therapyRoutes);
