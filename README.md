@@ -110,15 +110,12 @@ Backed by a robust PostgreSQL schema, HealthPal ensures secure authentication, r
 <ul>
  <li><strong>Role Dashboard</strong><br/>
 
-<strong>Doctor Dashboard</strong>
+<strong>Patient Dashboard</strong>
 Displays essential patient activity such as upcoming consultations, therapy sessions, recent cases, medical requests, and equipment requests.
-
 <strong>Doctor Dashboard</strong>
 Shows the doctor’s daily schedule including today’s consultations, therapy sessions, and recently attended patients.
-
 <strong>NGO Dashboard</strong>
 Provides case statistics, total donations received, active/closed case counts, and request claim activity.
-
 <strong>Donor Dashboard</strong>
 Summarizes donor activity including total donations, supported cases, and recent contribution history.
 
@@ -152,10 +149,6 @@ Case progress and status summaries
 
   <li><strong>Role-Based Data Access</strong><br/>
       Each role has filtered and secure access to their own domain-specific data.
-  </li>
-
-  <li><strong>Automated Cron Jobs</strong><br/>
-      Background tasks for syncing health alerts, sending reminders, and maintaining data freshness.
   </li>
 </>
 
