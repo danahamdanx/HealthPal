@@ -125,12 +125,10 @@ Summarizes donor activity including total donations, supported cases, and recent
 </li>
 
  <li><strong>Reporting & Analytics (API)</strong><br/>
-
 Monthly donation summary (per donor, NGO, or full platform)
 Top NGO-managed cases based on activity or donations
 Medical requests sorted by priority levels
 Case progress and status summaries
-
 </li>
 
  <li><strong>PDF Generation</strong><br/>
@@ -183,11 +181,9 @@ Case progress and status summaries
 
 ## External Libraries and Packages📦
 
-- **pg**: PostgreSQL database connection and management.
 - **bcrypt**: Password encryption and secure authentication.
 - **jsonwebtoken (jwt)**: Secure token generation for authentication and role-based access.
 - **express**: Server framework for routing and HTTP handling.
-- **cookie-parser**: Manage tokens via cookies.
 - **express-session**: Session management for user activities.
 - **node-cron**: Schedule notifications and automated tasks.
 - **axios**: HTTP requests to external APIs.
