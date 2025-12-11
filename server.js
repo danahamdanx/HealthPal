@@ -75,4 +75,6 @@ app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 const prescriptionRoutes = require("./src/routes/prescription.routes");
 app.use("/api/prescriptions", prescriptionRoutes);
 
+import doctorRoutes from './src/routes/doctors.routes.js';
 
+app.use("/api/doctors", doctorRoutes);
