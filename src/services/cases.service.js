@@ -1,16 +1,29 @@
 import { db } from '../config/db.js';
 
 // ✅ إنشاء حالة جديدة
+// src/services/case.service.js
 export const createCaseService = async (data) => {
-  const { patient_id, title, description, target_amount, ngo_id } = data;
-  if (!patient_id || !title || !target_amount) throw new Error('Missing required fields');
+  const { patient_id, title, description, target_amount, ngo_name } = data;
 
+  if (!patient_id || !title || !target_amount || !ngo_name) {
+    throw new Error('Missing required fields');
+  }
+
+  // Find the NGO by name
+  const [ngoRows] = await db.query('SELECT ngo_id FROM NGOs WHERE name = ?', [ngo_name]);
+  if (!ngoRows.length) {
+    throw new Error('NGO not found');
+  }
+  const ngo_id = ngoRows[0].ngo_id;
+
+  // Insert new case
   const [result] = await db.query(
     `INSERT INTO Cases (patient_id, ngo_id, title, description, target_amount)
      VALUES (?, ?, ?, ?, ?)`,
-    [patient_id, ngo_id || null, title, description, target_amount]
+    [patient_id, ngo_id, title, description, target_amount]
   );
 
+  // Fetch and return the newly created case
   const [newCase] = await db.query('SELECT * FROM Cases WHERE case_id = ?', [result.insertId]);
   return newCase[0];
 };

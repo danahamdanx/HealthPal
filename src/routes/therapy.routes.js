@@ -42,7 +42,7 @@ router.post(
 router.get(
   "/patient/sessions",
   authenticate,
-  authorizeRoles("patient"),
+  authorizeRoles("patient","admin"),
   getPatientTherapySessions
 );
 
@@ -53,7 +53,7 @@ router.get(
 router.get(
   "/doctor/sessions",
   authenticate,
-  authorizeRoles("doctor"),
+  authorizeRoles("doctor","admin"),
   getDoctorTherapySessions
 );
 

@@ -15,12 +15,14 @@ const checkDonationMilestones = async (caseData, newRaised) => {
   const percentage = (newRaised / target) * 100;
 
   // نقرأ المايلستونز اللي انبعتت سابقاً من الحقل milestone_sent (JSON)
-  let sentMilestones = [];
-  try {
-    sentMilestones = JSON.parse(caseData.milestone_sent || '[]');
-  } catch {
-    sentMilestones = [];
-  }
+ let sentMilestones = [];
+try {
+  sentMilestones = Array.isArray(JSON.parse(caseData.milestone_sent)) 
+                   ? JSON.parse(caseData.milestone_sent) 
+                   : [];
+} catch {
+  sentMilestones = [];
+}
 
   // نشوف أي milestone وصلناها لأول مرة
   const reached = milestones.find(

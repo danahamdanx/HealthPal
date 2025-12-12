@@ -64,7 +64,7 @@ app.use("/api/external_health_article", externalHealthRoutes);
 app.use("/api", workshopRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/ngos', ngoReportsRoutes);
-app.use('/api/medical-requests', medicalRequestPriorityRoutes);
+app.use('/api/medical-request', medicalRequestPriorityRoutes);
 app.use('/api/public-health-alerts', cdcAlertsRoutes);
  app.use("/api/prescriptions", prescriptionRoutes);
  app.use("/api/support-tickets",supportTickets);
