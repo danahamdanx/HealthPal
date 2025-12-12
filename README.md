@@ -12,7 +12,7 @@
     <br />
     <a href="https://github.com/danahamdanx/HealthPal/wiki"><strong>Explore the docs »</strong></a>
     <br /><br />
-    <a href="https://drive.google.com/file/d/1JWYMJUP-ZTfPFAo5BEffEkdLJMWE_TDN/view?usp=sharing">View Demo</a>
+    <a href="https://drive.google.com/file/d/1tyOT9Kdrujxl4Z_uX49hjgzFRdDH4QUg/view?usp=sharing">View Demo</a>
   </p>
 </div>
   </p>
