@@ -3,6 +3,7 @@ import { db } from '../config/db.js';
 import { generateToken } from './token.service.js';
 import { sendEmail } from '../utils/mailer.js';
 import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 
 // --- SIGNUP ---
 export const signupUser = async ({ name, email, password, phone, role }) => {

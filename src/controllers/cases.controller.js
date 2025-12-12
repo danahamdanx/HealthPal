@@ -1,14 +1,18 @@
 import * as caseService from '../services/cases.service.js';
 
 // ✅ إنشاء حالة جديدة
+// src/controllers/cases.controller.js
 export const createCase = async (req, res) => {
   try {
-    const newCase = await caseService.createCaseService(req.body);
+    // Get patient_id from token
+    const patient_id = req.user.patient_id; // assuming JWT stores patient_id
+    const newCase = await caseService.createCaseService({ ...req.body, patient_id });
     res.status(201).json(newCase);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // ✅ التحقق من الحالة
 export const verifyCase = async (req, res) => {

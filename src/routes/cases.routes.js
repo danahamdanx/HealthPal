@@ -34,7 +34,7 @@ router.put(
 router.delete(
   '/:case_id',
   authenticate,
-  authorizeRoles('admin'),
+  authorizeRoles('admin','patient'),
   casesController.deleteCase
 );
 

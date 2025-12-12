@@ -17,15 +17,15 @@ export const getNgoSummary = async (ngoId) => {
   }
 
   // عدد الحالات
-  const [[caseCounts]] = await db.query(
-    `SELECT 
-        COUNT(*) AS totalCases,
-        SUM(CASE WHEN status = 'active' THEN 1 ELSE 0 END) AS activeCases,
-        SUM(CASE WHEN status = 'closed' THEN 1 ELSE 0 END) AS closedCases
-     FROM CASES
-     WHERE ngo_id = ?`,
-    [ngoId]
-  );
+const [[caseCounts]] = await db.query(
+  `SELECT
+      COUNT(*) AS totalCases,
+      SUM(CASE WHEN status IN ('active', 'in_progress') THEN 1 ELSE 0 END) AS activeOrInProgressCases,
+      SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS closedCases
+   FROM Cases
+   WHERE ngo_id = ?`,
+  [ngoId]
+);
 
   // إجمالي التبرعات (على كل الحالات التابعة لهاي الـ NGO)
   const [[totalDonationsRow]] = await db.query(
@@ -49,7 +49,7 @@ export const getNgoSummary = async (ngoId) => {
     ngo,
     stats: {
       totalCases: caseCounts.totalCases || 0,
-      activeCases: caseCounts.activeCases || 0,
+     activeOrInProgressCases: caseCounts.activeOrInProgressCases || 0,
       closedCases: caseCounts.closedCases || 0,
       totalDonations: totalDonationsRow.totalDonations || 0,
       totalClaims: claimsCountRow.totalClaims || 0,
